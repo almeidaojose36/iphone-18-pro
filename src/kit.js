@@ -206,6 +206,41 @@ export function dimpleTextures(repeat) {
   return { map: finish(c, { repeat }), bump: finish(cb, { repeat, srgb: false }) };
 }
 
+/** Woven mesh (the wick, the thermal 'chain mail'): returns { map, bump }. */
+export function meshTextures(repeat, fg = '#c98a52', bg = '#3a2415') {
+  const S = 64, [c, g] = canvas(S, S), [cb, gb] = canvas(S, S);
+  g.fillStyle = bg; g.fillRect(0, 0, S, S); gb.fillStyle = '#202020'; gb.fillRect(0, 0, S, S);
+  for (const [ctx, col] of [[g, fg], [gb, '#e0e0e0']]) { ctx.strokeStyle = col; ctx.lineWidth = 9; for (const o of [16, 48]) { ctx.beginPath(); ctx.moveTo(o, 0); ctx.lineTo(o, S); ctx.moveTo(0, o); ctx.lineTo(S, o); ctx.stroke(); } }
+  g.fillStyle = 'rgba(255,225,190,.5)'; for (const x of [16, 48]) for (const y of [16, 48]) g.fillRect(x - 4, y - 4, 8, 8);
+  return { map: finish(c, { repeat }), bump: finish(cb, { repeat, srgb: false }) };
+}
+
+// Blocks of the A20 Pro die as [x, y, w, h] in 0..1 (y down). A schematic: Apple publishes core counts, not a floor plan.
+export const DIE = {
+  p: [[0.05, 0.05, 0.2, 0.3], [0.27, 0.05, 0.2, 0.3]],
+  e: [0, 1, 2, 3].map((i) => [0.05 + i * 0.107, 0.38, 0.097, 0.2]),
+  gpu: [0, 1, 2, 3, 4, 5, 6].map((i) => (i < 4 ? [0.52 + i * 0.109, 0.05, 0.099, 0.25] : [0.52 + (i - 4) * 0.146, 0.33, 0.136, 0.25])),
+  npu: [[0.05, 0.62, 0.2, 0.33], [0.27, 0.62, 0.2, 0.33]],
+  io: [[0.52, 0.62, 0.43, 0.33]],
+};
+/** Schematic floor plan of the processor die. */
+export function dieTexture() {
+  const S = 1024, [c, g] = canvas(S, S), r = rng(7);
+  g.fillStyle = '#0d1016'; g.fillRect(0, 0, S, S);
+  const block = ([x, y, w, h], hue, label) => {
+    const X = x * S, Y = y * S, Wd = w * S, Hd = h * S;
+    g.fillStyle = `hsl(${hue} 45% 20%)`; g.fillRect(X, Y, Wd, Hd);
+    for (let i = 0; i < Math.max(12, Wd * Hd / 1100); i++) { const bw = (0.05 + r() * 0.3) * Wd, bh = (0.05 + r() * 0.22) * Hd; g.fillStyle = `hsl(${hue + r() * 30 - 15} ${40 + r() * 30}% ${20 + r() * 32}%)`; g.fillRect(X + r() * (Wd - bw), Y + r() * (Hd - bh), bw, bh); }
+    g.strokeStyle = 'rgba(255,214,90,.85)'; g.lineWidth = 4; g.strokeRect(X + 2, Y + 2, Wd - 4, Hd - 4);
+    const size = Math.min(Hd / 2.6, Wd / (label.length * 0.62), 58);
+    g.font = `700 ${size}px ${SANS}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = 'rgba(0,0,0,.75)'; g.fillText(label, X + Wd / 2 + 2, Y + Hd / 2 + 2); g.fillStyle = '#ffe27a'; g.fillText(label, X + Wd / 2, Y + Hd / 2);
+  };
+  DIE.p.forEach((b) => block(b, 24, 'P')); DIE.e.forEach((b) => block(b, 44, 'E')); DIE.gpu.forEach((b) => block(b, 214, 'GPU'));
+  DIE.npu.forEach((b) => block(b, 300, 'NPU')); DIE.io.forEach((b) => block(b, 172, 'CACHE · I/O'));
+  return finish(c);
+}
+
 /** Text plate: chip markings, battery print. lines = [[text, sizePx, weight, colour], …]. */
 export function textTexture(lines, { w = 512, h = 512, bg = null, align = 'center', pad = 40 } = {}) {
   const [c, g] = canvas(w, h);
@@ -259,6 +294,7 @@ export function makeMaterials(finish = 'burgundy') {
   const std = (o) => new THREE.MeshStandardMaterial(o);
   const brushed = brushedTexture(), grain = grainTexture([6, 6]), dimple = dimpleTextures([1, 1]);
   const pcb = pcbTexture(), pcb2 = pcbTexture('#0d1512', '#18261f', 29);
+  const wick = meshTextures([1, 1]), mail = meshTextures([1, 1], '#d4d8dd', '#4a4e55');
   return {
     finish: F,
     body: std({ color: F.body, metalness: 0.8, roughness: 0.5, roughnessMap: grain, bumpMap: grain, bumpScale: 0.06 }),
@@ -288,6 +324,13 @@ export function makeMaterials(finish = 'burgundy') {
     magnet: std({ color: 0x2a2c30, metalness: 0.8, roughness: 0.4 }),
     pad: std({ color: 0x8e96a0, metalness: 0.1, roughness: 0.85, roughnessMap: grain }),
     white: std({ color: 0xe8e6e0, metalness: 0.0, roughness: 0.5 }),
+    wick: std({ color: 0xffffff, map: wick.map, bumpMap: wick.bump, bumpScale: 0.5, metalness: 0.85, roughness: 0.42 }),
+    mail: std({ color: 0xffffff, map: mail.map, bumpMap: mail.bump, bumpScale: 0.6, metalness: 0.9, roughness: 0.35 }),
+    filler: std({ color: 0x6f86a8, metalness: 0.0, roughness: 0.9 }),
+    sponge: std({ color: 0x2d3036, metalness: 0.0, roughness: 0.95, roughnessMap: grain, bumpMap: grain, bumpScale: 0.4 }),
+    prism: std({ color: 0xa8d4ff, metalness: 0.1, roughness: 0.05, transparent: true, opacity: 0.38, depthWrite: false }),
+    filter: std({ color: 0x2a0a1e, metalness: 0.7, roughness: 0.12 }),
+    hair: std({ color: 0x6b4a2e, metalness: 0.0, roughness: 0.5 }),
     blackMatte: std({ color: 0x040405, metalness: 0.2, roughness: 0.5 }),
     flash: std({ color: 0x9c978a, metalness: 0.1, roughness: 0.55 }),
     sensor: std({ color: 0x2a3550, metalness: 0.9, roughness: 0.12, emissive: 0x101a40, emissiveIntensity: 0.4 }),

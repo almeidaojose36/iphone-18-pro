@@ -3,10 +3,12 @@
 A procedural 3D teardown animation of the iPhone 18 Pro, built with three.js. The whole model is
 code: there are no imported meshes. The animation runs in a browser and renders frame by frame to video.
 
-The current edit is a narrated film of about four minutes, *Inside the iPhone 18 Pro*. It goes in the
-order a repair does: the rear glass and its charging coil → the glued display → the layout under it →
-the front cameras → the screwed-in battery tray → the vapor chamber → the logic board sandwich and the
-A20 Pro → the rear cameras and the six-blade variable aperture → the repairability verdict.
+The current edit is a narrated deep teardown of about eleven minutes, *Inside the iPhone 18 Pro*, in ten
+chapters. It goes in the order a repair does: the outside and its seal → the rear glass and charging coil,
+then the glued display → the display's layers and the Face ID parts → the screwed-in battery tray → the
+speaker, Taptic Engine and USB-C port → the vapor chamber, its skins and wick → the logic board sandwich,
+the thermal stack and the A20 Pro die → the three rear cameras and the folded telephoto → the six-blade
+variable aperture → the repairability verdict.
 
 Two things were combined to make it:
 
@@ -33,7 +35,7 @@ npm start
 ```
 
 Then open <http://localhost:8080>. The bar at the bottom plays, pauses and scrubs. **Free camera** lets
-you orbit at any moment. **Export .glb** saves the model as it stands at the current time. `?t=186` in
+you orbit at any moment. **Export .glb** saves the model as it stands at the current time. `?t=542` in
 the address opens paused at that second, and `?finish=black` (or `white`, `blue`, `burgundy`) changes the colour.
 
 ## Make the video
@@ -93,13 +95,13 @@ changing the script, voice, music or effects.
 
 `node tools/review.mjs` writes one labelled frame per narration beat to `out/review/`, and
 `tools/sheet.sh out/review` tiles them into contact sheets: the quickest way to check an edit.
-`node tools/render-video.mjs --from 170 --to 200` renders any part.
+`node tools/render-video.mjs --from 507 --to 604` renders any part (here, the chapter on the iris).
 
 Other tools:
 
-- `node tools/stills.mjs --times 5,66,186` writes JPEG stills to `out/stills/`.
+- `node tools/stills.mjs --times 5,163,352,542` writes JPEG stills to `out/stills/`.
 - `node tools/view.mjs --views "back:2:0.6,-2,-1.6:0,0,0.1"` renders the model from any camera, without text.
-- `node tools/export-glb.mjs --t 2` writes `out/iphone-18-pro.glb` for Blender. Every part is a named node.
+- `node tools/export-glb.mjs --t 5` writes `out/iphone-18-pro.glb` for Blender. Every part is a named node.
 
 ## Where things are
 
@@ -113,7 +115,7 @@ Other tools:
 | `src/kit.js` | Shapes, geometry helpers, materials, canvas textures |
 | `src/timeline.js` | Deterministic timeline and shot camera |
 | `index.html` | The stage and the styles of the on-screen text |
-| `audio/` | Narration clips, the music bed and sound effects |
+| `audio/` | Narration clips, four music beds and sound effects |
 | `reference/` | Apple's product films and stills, used to study the look and the motion |
 | `docs/RESEARCH.md` | Hardware facts with sources, and what in the model is an estimate |
 

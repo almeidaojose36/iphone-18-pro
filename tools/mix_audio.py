@@ -35,14 +35,24 @@ vo = np.zeros((N, 2), np.float32)
 for bid, b in timing['beats'].items():
     place(vo, norm(load(ROOT / f'audio/vo/{bid}.mp3'), -3), b['start'])
 
-# ---- music: one bed, looped with a cross-fade if it is shorter than the film
-bed = norm(load(ROOT / 'audio/music/bed.mp3'), -6)
-XF = int(4 * SR)
-while len(bed) < N:
-    ramp = np.linspace(0, 1, XF, dtype=np.float32)[:, None]
-    bed = np.concatenate([bed[:-XF], bed[-XF:] * np.cos(ramp * np.pi / 2) + bed[:XF] * np.sin(ramp * np.pi / 2), bed[XF:]])
-music = bed[:N].copy()
-music[:int(1.5 * SR)] *= np.linspace(0, 1, int(1.5 * SR), dtype=np.float32)[:, None]
+# ---- music: beds cross-faded at chapter boundaries (name, from, to, offset into the file)
+ch = {k: v['start'] for k, v in timing['chapters'].items()}
+beds = [('a_open', 0, ch['display'], 0), ('b_inside', ch['display'], ch['cool'], 0), ('c_deep', ch['cool'], ch['eye'], 0),
+        ('a_open', ch['eye'], ch['verdict'], 70), ('d_close', ch['verdict'], total, 0)]
+XF = 4.0
+music = np.zeros((N, 2), np.float32)
+for i, (name, a, b, off) in enumerate(beds):
+    clip = norm(load(ROOT / f'audio/music/{name}.mp3'), -6)[int(off * SR):]
+    t0 = max(0, a - XF / 2) if i else 0
+    t1 = min(total, b + XF / 2)
+    need = int((t1 - t0) * SR)
+    while len(clip) < need: clip = np.concatenate([clip, clip])   # a bed shorter than its section repeats
+    clip = clip[:need].copy()
+    f = int(XF * SR)
+    ramp = np.linspace(0, 1, f, dtype=np.float32)[:, None]
+    clip[:f] *= np.sin(ramp * np.pi / 2) if i else ramp ** 0.5     # equal-power cross-fade
+    clip[-f:] *= np.cos(ramp * np.pi / 2)
+    place(music, clip, t0)
 
 # duck the music under the narration (envelope computed at 100 Hz, then interpolated)
 HOP = SR // 100

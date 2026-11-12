@@ -3,7 +3,7 @@
 // list follow Apple's specifications and iFixit's teardown; positions and sizes of internal parts are
 // estimates from Apple's cutaway renders (docs/RESEARCH.md says which is which).
 import * as THREE from 'three';
-import { rrect, rpoly, circle, plate, box, cyl, ring, dome, group, flex, decal, textTexture, wallpaperTexture } from '../kit.js';
+import { rrect, rpoly, circle, plate, box, cyl, ring, dome, group, flex, decal, textTexture, wallpaperTexture, dieTexture } from '../kit.js';
 
 export const W = 71.9, H = 150.0, D = 8.75;
 const ZB = -D / 2, ZF = D / 2;                      // back and front faces
@@ -41,9 +41,9 @@ export function buildPhone(M) {
   chassis.add(cyl(3.4, ZB - 2.56, ZB - 2.3, M.flash, -21.5, 63, 'True Tone flash'), cyl(0.45, ZB - 2.56, ZB - 2.3, M.black, -21.5, 54.4, 'Rear microphone'),
     cyl(3.3, ZB - 2.56, ZB - 2.3, M.glassBlack, -21.5, 45.5, 'LiDAR window'));
   // buttons: Action and volume on the left, side button and Camera Control on the right
-  const btn = (x, y, len, name, mat = M.body) => { const b = plate(rrect(1.5, len, 0.7, x, y), -1.5, 1.5, mat, { bevel: 0.3, name }); chassis.add(b); return b; };
-  btn(-W / 2 - 0.2, 43, 6.5, 'Action button'); btn(-W / 2 - 0.2, 27.4, 11.5, 'Volume up'); btn(-W / 2 - 0.2, 12.8, 11.5, 'Volume down');
-  btn(W / 2 + 0.2, 26, 17.5, 'Side button'); btn(W / 2 + 0.05, -16, 15.5, 'Camera Control', M.glassBlack);
+  const btn = (x, y, len, name, mat = M.body) => { const b = plate(rrect(1.5, len, 0.7, x, y), -1.5, 1.5, mat, { bevel: 0.3, name }); b.userData.at = [x, y, 0]; chassis.add(b); return b; };
+  R.btn = { action: btn(-W / 2 - 0.2, 43, 6.5, 'Action button'), volUp: btn(-W / 2 - 0.2, 27.4, 11.5, 'Volume up'), volDown: btn(-W / 2 - 0.2, 12.8, 11.5, 'Volume down'),
+    side: btn(W / 2 + 0.2, 26, 17.5, 'Side button'), cc: btn(W / 2 + 0.05, -16, 15.5, 'Camera Control', M.glassBlack) };
   // bottom edge: speaker and microphone holes, pentalobe screws, USB-C opening
   const edge = (x, r, mat, name) => { const m = cyl(r, -0.3, 0.3, mat, 0, 0, name); m.rotation.set(0, 0, 0); m.scale.set(r, 0.5, r); m.position.set(x, -H / 2 - 0.02, 0); chassis.add(m); };
   for (let i = 0; i < 5; i++) { edge(-25 + i * 3.1, 0.75, M.black, 'Microphone grille'); edge(12.6 + i * 3.1, 0.75, M.black, 'Speaker grille'); }
@@ -72,10 +72,13 @@ export function buildPhone(M) {
 
   // ------------------------------------------------------------ vapor chamber
   const vapor = R.vapor = group('Vapor chamber');
-  const vm = plate(rpoly(VAPOR, 2.2), -3.4, -2.92, M.vapor, { bevel: 0.1, name: 'Vapor chamber plate' });
+  R.vBase = plate(rpoly(VAPOR, 2.2), -3.4, -3.22, M.steel, { bevel: 0.05, name: 'Vapor chamber lower skin' });
+  R.vWick = plate(rpoly(VAPOR.map(([x, y]) => [x * 0.97, y * 0.97 - 0.3]), 2), -3.22, -3.12, M.wick, { bevel: 0, name: 'Wick' });
+  { const uv = R.vWick.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / 2.2, uv.getY(i) / 2.2); }
+  const vm = R.vLid = plate(rpoly(VAPOR, 2.2), -3.12, -2.92, M.vapor, { bevel: 0.08, name: 'Vapor chamber upper skin' });
   { const uv = vm.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / 4.4, uv.getY(i) / 4.4); M.vapor.map.wrapS = M.vapor.map.wrapT = M.vapor.bumpMap.wrapS = M.vapor.bumpMap.wrapT = THREE.RepeatWrapping; }
-  vapor.add(vm, plate(rrect(15.5, 15.5, 1.6, SOC[0], SOC[1]), -2.95, -2.78, M.steel, { bevel: 0.06, name: 'Evaporator pad' }),
-    plate(rrect(13.5, 13.5, 1.2, SOC[0], SOC[1]), -2.8, -2.7, M.pad, { bevel: 0.03, name: 'Thermal interface pad' }));
+  R.vLidG = group('Upper skin', vm, plate(rrect(15.5, 15.5, 1.6, SOC[0], SOC[1]), -2.95, -2.82, M.steel, { bevel: 0.05, name: 'Evaporator pad' }));
+  vapor.add(R.vBase, R.vWick, R.vLidG);
   phone.add(vapor);
 
   // ------------------------------------------------------------ battery: steel tray, cell, thirteen screws
@@ -108,29 +111,36 @@ export function buildPhone(M) {
   const usb = R.usb = group('USB-C port');
   usb.add(box(9.6, 7.4, 3.3, M.steel, 0, -68.6, -0.2, 'USB-C shell', 1.2), box(13, 2.2, 0.5, M.steelDark, 0, -65.2, 1.2, 'Port bracket'), box(14, 5, 0.3, M.pcb2, -10, -66.5, -1.9, 'Port board'),
     box(1.6, 1.6, 1.2, M.steelDark, -21, -70, -1.2, 'Bottom microphone'));
-  usb.add(flex([[-12, -66.5, -2.2], [-32.2, -66.5, -2.2], [-32.2, 22, -2.2], [-29, 22, -2.2]], 2.6, M.flex, 'USB-C flex cable'));
+  R.usbFlex = flex([[-12, -66.5, -2.2], [-32.2, -66.5, -2.2], [-32.2, 22, -2.2], [-29, 22, -2.2]], 2.6, M.flex, 'USB-C flex cable');
+  usb.add(R.usbFlex);
   phone.add(taptic, speaker, usb);
 
   // ------------------------------------------------------------ logic board: two boards around an interposer
   const board = R.board = group('Logic board');
   const bShape = rpoly(BOARD, 1.6);
   const boardA = R.boardA = group('Board A (processor side)', plate(bShape, -2.0, -1.35, M.pcb, { bevel: 0.04, name: 'Board A' }));
-  const soc = R.soc = group('A20 Pro', box(13, 13, 0.7, M.chip, 0, 0, -2.35, 'A20 Pro package'),
+  R.socLid = group('A20 Pro package lid', box(13, 13, 0.5, M.chip, 0, 0, -2.45, 'A20 Pro package'),
     decal(11, 11, textTexture([['A20', 150, 700, '#b8bcc4', 4], ['PRO', 74, 600, '#9a9ea6', 16]], { w: 512, h: 512 }), 0, 0, -2.71, { flip: true, transparent: true, roughness: 0.4 }));
+  R.die = group('A20 Pro die', box(13, 13, 0.2, M.pcb2, 0, 0, -2.1, 'Package substrate'), box(10, 10, 0.16, M.silicon, 0, 0, -2.28, 'Processor die'),
+    decal(9.7, 9.7, dieTexture(), 0, 0, -2.365, { flip: true, roughness: 0.3, emissive: 0.25 }));
+  R.tChain = plate(rrect(12, 12, 1), -2.745, -2.715, M.mail, { bevel: 0, name: 'Thermal chain mail' });
+  { const uv = R.tChain.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / 1.2, uv.getY(i) / 1.2); }
+  R.tFill = plate(rrect(12.6, 12.6, 1.4), -2.775, -2.745, M.filler, { bevel: 0, name: 'Conformable gap filler' });
+  R.tPad = plate(rrect(13.2, 13.2, 1.2), -2.815, -2.775, M.sponge, { bevel: 0, name: 'Spongy pad' });
+  const soc = R.soc = group('A20 Pro', R.die, R.socLid, R.tChain, R.tFill, R.tPad);
   soc.position.set(SOC[0], SOC[1], 0);
   const ram = R.ram = group('Memory', box(10.5, 12, 0.7, M.chip, 0, 0, -2.35, 'LPDDR memory package'),
     decal(8.5, 5, textTexture([['MEMORY', 70, 600, '#8d9199', 10]], { w: 512, h: 300 }), 0, 0, -2.71, { flip: true, transparent: true }));
   ram.position.set(0.6, 25.8, 0);
-  const nand = R.nand = group('Flash storage', box(12, 15, 0.9, M.chip, 0, 0, -0.46, 'NAND flash package'),
-    decal(9, 5, textTexture([['NAND', 84, 600, '#8d9199', 10]], { w: 512, h: 300 }), 0, 0, -0.93, { flip: true, transparent: true }));
+  const nand = R.nand = group('Flash storage', box(12, 15, 0.9, M.chip, 0, 0, -0.9, 'NAND flash package'),
+    decal(9, 5, textTexture([['NAND', 84, 600, '#8d9199', 10]], { w: 512, h: 300 }), 0, 0, -0.44, { transparent: true }));
   nand.position.set(-21.5, 52, 0);
-  boardA.add(soc, ram, box(5, 6, 0.6, M.chip, -26, 25, -2.3, 'Power management IC'), box(4, 4, 0.5, M.chip, -22.5, 40, -2.25, 'Chip'), box(6, 3, 0.5, M.chip, -22, 64, -2.25, 'Chip'));
+  boardA.add(soc, ram, nand, box(5, 6, 0.6, M.chip, -26, 25, -2.3, 'Power management IC'), box(4, 4, 0.5, M.chip, -22.5, 40, -2.25, 'Chip'), box(6, 3, 0.5, M.chip, -22, 64, -2.25, 'Chip'));
   for (let i = 0; i < 14; i++) boardA.add(box(1.1, 0.6, 0.45, i % 3 ? M.amber : M.black, -29 + (i % 7) * 1.7, 31.5 + Math.floor(i / 7) * 1.3, -2.22, 'Capacitor'));
   for (let i = 0; i < 5; i++) boardA.add(box(3.4, 2.6, 0.6, M.chip, -27 + i * 6.6, 19, -1.05, 'Chip'));
   const inter = R.interposer = plate(bShape, -1.35, 0.0, M.amber, { bevel: 0.03, holes: [rpoly(BOARD.map(([x, y]) => [x + (x < -20 ? 1.1 : -1.1), y + (y < 30 ? 1.1 : -1.1)]), 1, THREE.Path)], name: 'Interposer frame' });
   const boardB = R.boardB = group('Board B (radio side)', plate(bShape, 0.0, 0.65, M.pcb2, { bevel: 0.04, name: 'Board B' }));
   const can = (w, h, x, y, name, t = 1.0) => { const c = box(w, h, t, M.shield, x, y, 0.65 + t / 2, name, 0.3); boardB.add(c); return c; };
-  boardB.add(nand);
   R.modem = can(12, 11, -3, 26, 'C2 modem shield'); R.n1 = can(10, 9, -23.5, 26.5, 'N1 wireless shield'); can(15, 9, -22, 44, 'Shield'); can(13, 12, -22.5, 61, 'RF front-end shield');
   for (let i = 0; i < 6; i++) boardB.add(box(5.2, 1.5, 0.75, M.black, -27 + i * 6.2, 18.6, 1.0, 'Board connector'), box(4.2, 0.9, 0.2, M.gold, -27 + i * 6.2, 18.6, 1.42, 'Connector contacts'));
   board.add(boardA, inter, boardB);
@@ -157,7 +167,7 @@ export function buildPhone(M) {
     const phi = i / 6 * Math.PI * 2 + 0.3;
     rotor.add(cyl(0.32, -7.5, -7.1, M.steel, Math.cos(phi) * Rp, Math.sin(phi) * Rp, 'Blade pin'));
     const s = new THREE.Shape(); s.moveTo(-0.55, 0.38); s.lineTo(7.3, 0); s.quadraticCurveTo(4.4, -2.5, -0.5, -0.95); s.closePath();
-    s.holes.push(circle(0.34), (() => { const p = new THREE.Path(); p.absarc(1.5, -0.62, 0.2, 0, Math.PI * 2); return p; })());
+    s.holes.push(circle(0.34), (() => { const p = new THREE.Path(); p.moveTo(1.4, -0.4); p.lineTo(2.9, -0.62); p.absarc(2.9, -0.8, 0.18, Math.PI / 2, -Math.PI / 2, true); p.lineTo(1.4, -0.76); p.absarc(1.4, -0.58, 0.18, -Math.PI / 2, Math.PI / 2, true); return p; })());
     const zb = -7.22 - i * 0.045;
     const b = plate(s, zb - 0.04, zb, M.blade, { bevel: 0, name: `Aperture blade ${i + 1}`, segs: 10 });
     const piv = group(`Blade pivot ${i + 1}`, b); piv.position.set(Math.cos(phi) * Rp, Math.sin(phi) * Rp, 0);
@@ -179,10 +189,18 @@ export function buildPhone(M) {
     rotor.rotation.z = -al * 0.9;
   };
   R.setAperture(FOCAL / STOPS[0]);
-  main.add(mSensor, mOis, mCan, mBarrel, ap);
+  R.hair = cyl(0.035, -7, 7, M.hair, 0, 0, 'Human hair (for scale)'); R.hair.rotation.set(0, 0, Math.PI / 2); R.hair.position.set(0, -4.6, -9.6);
+  R.screw2 = group('2 mm screw (for scale)', cyl(0.75, -0.35, 0, M.steel, 0, 0, 'Screw head'), cyl(0.38, 0, 2, M.steel, 0, 0, 'Screw thread'), box(0.9, 0.16, 0.06, M.black, 0, 0, -0.36), box(0.16, 0.9, 0.06, M.black, 0, 0, -0.36));
+  R.screw2.rotation.set(0, Math.PI / 2, 0); R.screw2.position.set(3.2, -6.4, -9.6);
+  R.hair.visible = R.screw2.visible = false;
+  main.add(mSensor, mOis, mCan, mBarrel, ap, R.hair, R.screw2);
   main.position.set(LENS.main[0], LENS.main[1], 0);
   // telephoto: tetraprism folded along the top edge
-  const tele = R.tele = group('48MP Fusion Telephoto camera', box(15.5, 14, 6, M.shield, 0, 0, -0.4, 'Telephoto can', 0.9), box(19.5, 9, 3.9, M.shield, -17, 3.5, -1.45, 'Tetraprism housing', 0.7),
+  R.teleLid = group('Telephoto shield', box(15.5, 14, 6, M.shield, 0, 0, -0.4, 'Telephoto can', 0.9), box(19.5, 9, 3.9, M.shield, -17, 3.5, -1.45, 'Tetraprism housing', 0.7));
+  R.prism = group('Tetraprism', box(22, 6.4, 2.6, M.prism, -13.5, 3.5, -1.45, 'Prism glass', 0.3), box(6, 6.6, 0.5, M.pcb, -25.2, 3.5, -2.9, 'Telephoto sensor board'), box(4.6, 5, 0.25, M.sensor, -25.2, 3.5, -2.55, 'Telephoto sensor'),
+    box(26, 8, 0.3, M.steelDark, -12.5, 3.5, -3.2, 'Prism carrier'));
+  R.prism.children[0].castShadow = false; R.prism.children[0].renderOrder = 3;
+  const tele = R.tele = group('48MP Fusion Telephoto camera', R.prism, R.teleLid,
     ring(5.0, 3.2, -6.6, -3.3, M.black, 0, 0, 'Barrel', 0.2), box(8, 3.2, 0.15, M.flex, -17, -2, 0.6, 'Telephoto flex'));
   lensStack(tele, 3.3, -6.3, 2);
   tele.position.set(LENS.tele[0], LENS.tele[1], 0);
@@ -208,10 +226,12 @@ export function buildPhone(M) {
   // ------------------------------------------------------------ display
   const display = R.display = group('Display');
   const dShape = rrect(W - 1.5, H - 1.5, 10.9);
-  display.add(plate(dShape, ZI, ZF, M.glassBlack, { bevel: 0.35, name: 'Ceramic Shield 2 cover glass', segs: 14, bsegs: 3 }));
-  display.add(plate(rrect(W - 5.6, H - 5.6, 8.8), 2.95, ZI, M.oled, { bevel: 0.05, name: 'OLED panel' }));
-  display.add(plate(rrect(W - 9, H - 30, 3, 0, -8), 2.85, 2.96, M.copper, { bevel: 0.02, name: 'Panel heat spreader' }));
-  display.add(box(16, 8, 0.25, M.flex, 14, -66, 2.8, 'Display flex'), box(11, 3, 0.5, M.steelDark, 14, -62.5, 2.7, 'Display connector'));
+  const dGlass = R.dGlass = group('Cover glass', plate(dShape, ZI, ZF, M.glassBlack, { bevel: 0.35, name: 'Ceramic Shield 2 cover glass', segs: 14, bsegs: 3 }));
+  const dPanel = R.dPanel = group('OLED panel', plate(rrect(W - 5.6, H - 5.6, 8.8), 2.95, ZI, M.oled, { bevel: 0.05, name: 'OLED panel' }),
+    plate(rrect(7.4, 7.4, 1.6, -22.5, 64), 2.9, 2.96, M.filter, { bevel: 0.01, name: 'Infrared-pass filter' }));
+  const dBack = R.dBack = group('Heat spreader', plate(rrect(W - 9, H - 30, 3, 0, -8), 2.85, 2.94, M.copper, { bevel: 0.02, name: 'Panel heat spreader' }),
+    box(16, 8, 0.25, M.flex, 14, -66, 2.8, 'Display flex'), box(11, 3, 0.5, M.steelDark, 14, -62.5, 2.7, 'Display connector'));
+  display.add(dBack, dPanel, dGlass);
   const screen = decal(W - 4.2, H - 4.2, wallpaperTexture(M.finish.tone), 0, 0, ZF + 0.012, { emissive: 1.0, roughness: 0.2 });
   { // round the corners of the picture with an alpha mask
     const c = document.createElement('canvas'); c.width = 512; c.height = 1100; const g = c.getContext('2d');
@@ -221,7 +241,7 @@ export function buildPhone(M) {
   screen.name = 'Lit display'; R.screen = screen;
   const island = plate(rrect(15.4, 4.9, 2.45, 0, 66.2), ZF + 0.05, ZF + 0.09, new THREE.MeshBasicMaterial({ color: 0x000000 }), { bevel: 0, name: 'Dynamic Island' });
   island.castShadow = false;
-  display.add(screen, island, cyl(1.1, ZF + 0.09, ZF + 0.1, M.lensGlass, 4.2, 66.2, 'Front camera window'));
+  dGlass.add(screen, island, cyl(1.1, ZF + 0.09, ZF + 0.1, M.lensGlass, 4.2, 66.2, 'Front camera window'));
   phone.add(display);
 
   return { group: phone, refs: R };

@@ -4,7 +4,7 @@ Instructions for a person or an AI agent rendering **"Inside the iPhone 18 Pro"*
 graphics card. Everything needed is in this repository: the 3D scene is code, and the narration, music
 and sound effects are committed under `audio/`. No API keys are needed to render.
 
-The output is `out/iphone-18-pro-teardown.mp4` (about 4 min 13 s) plus `out/captions.srt`.
+The output is `out/iphone-18-pro-teardown.mp4` (about 10 min 56 s, 19,700 frames at 30 fps) plus `out/captions.srt`.
 
 ## 1. Requirements
 
@@ -38,7 +38,7 @@ python3 -m pip install numpy
 ## 3. Check that the GPU is used
 
 ```bash
-node tools/stills.mjs --gpu --width 1920 --height 1080 --times 5,66,136,186 --dir out/test
+node tools/stills.mjs --gpu --width 1920 --height 1080 --times 5,163,352,542 --dir out/test
 ```
 
 The first line printed is `[renderer] …`. It must name your graphics card (for example
@@ -95,7 +95,7 @@ Options, all as environment variables:
 | `HEADED` | 0 | 1 shows the browser window |
 | `WORKERS` | 1 | Parallel render processes |
 
-Without a GPU, this is the setting the 720p copy was made with (about 1.5 s a frame on four cores):
+Without a GPU it still renders, slowly: about 1.5 s a frame at 720p on four cores, so several hours for the whole film:
 
 ```bash
 GPU=0 WIDTH=1280 HEIGHT=720 FPS=24 WORKERS=3 tools/render-all.sh

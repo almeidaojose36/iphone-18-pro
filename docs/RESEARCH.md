@@ -34,9 +34,42 @@ What the model and the narration rest on, and what is an estimate.
 | The iris is moved by magnetism | iFixit |
 | The aperture is "about as close as it gets" to unrepairable; damage means replacing the camera | iFixit |
 | Provisional repairability score 7 out of 10, for both Pro and Pro Max | iFixit |
+| Aluminum unibody; 85% recycled aluminum in the enclosure | Apple specs, Apple newsroom |
+| Ceramic Shield 2 front, Ceramic Shield back | Apple specs |
+| Action button, volume buttons, side button, Camera Control | Apple specs |
+| USB-C at up to 10 Gb/s | Apple specs |
+| 6.3-inch OLED, 2622 × 1206 at 460 ppi, up to 120 Hz, 3000 nits peak outdoors | Apple specs |
+| Smaller Dynamic Island | Apple newsroom |
+| IP68: 6 meters for 30 minutes | Apple specs |
+| The one display that came off cleanly: 15 minutes at 70 °C, then 10 at 72 °C | iFixit |
+| "Disappointed (but not surprised)" by the front-entry design carried over from last year | iFixit |
+| 18MP Center Stage front camera; dot projector stays in the central opening | Apple specs, iFixit |
+| "What appears to be an infrared-pass filter" under the OLED at the infrared camera | iFixit |
+| Pro Max battery 21.751 Wh (5567 mAh) | iFixit |
+| Battery replaced as a tray assembly, so no adhesive step | iFixit |
+| 100% recycled cobalt in the battery; 50% charge in around 15 minutes with a 60 W adapter | Apple specs |
+| USB-C port is a separate part; its long flex runs up the side to the logic board, with screws, adhesive and parts in the way | iFixit |
+| Up to 40% better sustained performance than the previous generation | Apple newsroom (Apple's claim) |
+| "Thermal chain mail" on the A20 Pro, a spongy pad, and a conformable gap filler | iFixit |
+| 6-core CPU (2 performance, 4 efficiency), 7-core GPU, dual 16-core Neural Engine | Apple specs, Apple newsroom |
+| C2 modem; N1 with Wi-Fi 7, Bluetooth 6 and Thread | Apple specs |
+| Qualcomm modem in the US iPhone 18 Pro Max | iFixit |
+| Flash storage inside the sandwich; the boards must be separated to reach it | iFixit |
+| Ultra Wide: 48MP, 13 mm, ƒ/2.2, 120° field of view | Apple specs |
+| Telephoto: 48MP, 100 mm (4×), ƒ/2.8, tetraprism | Apple specs |
+| LiDAR Scanner | Apple specs |
+| Main sensor "a little less than a half inch diagonal"; sensor-shift stabilization | iFixit, Apple specs |
+| Main camera easy to access and "painless to swap out" on both models | iFixit |
+| Blades of polymer composite, with a pivot hole and a slot that a pin slides in; shown beside a 2 mm screw | iFixit |
+| $249 for the iPhone 17 Pro camera assembly; the new one expected to cost more | iFixit, citing Apple Self Service Repair |
+| "Skip the upgrade"; "a lot of very tiny points of potential failure for very little benefit" | iFixit |
+| Credit for Apple's repair support; Repair Assistant must finish calibration of parts | iFixit |
+| Parts-availability and software-pairing checks still under way | iFixit |
 
-Other figures shown on screen: 48MP Main at 24 mm, 48MP Ultra Wide at 13 mm, 48MP Telephoto at 100 mm
-with a tetraprism (Apple specs); C2 modem and N1 wireless chip (Apple specs).
+General background that comes from neither source, kept deliberately plain: a battery wears out before
+the rest of a phone; a Taptic Engine is a weight driven by a magnet; a dot projector throws an infrared
+dot pattern; LiDAR measures depth with pulses of infrared light; a tetraprism folds the light through four
+reflections; a wider aperture gathers more light and blurs the background, a narrower one keeps more in focus.
 
 ## What is modelled from evidence
 
@@ -68,8 +101,17 @@ with a tetraprism (Apple specs); C2 modem and N1 wireless chip (Apple specs).
 - The burgundy, black, white and blue finish colours, matched by eye to Apple's stills.
 - The wallpaper on the display is original artwork, not Apple's.
 
+- The floor plan of the A20 Pro die. Apple publishes core counts only, so the die is drawn as a schematic
+  and labelled as one on screen.
+- The construction of the vapor chamber (two skins around a wick) and of the thermal stack: the layers
+  are named by iFixit, their order and thickness here are guesses.
+- The display's three layers and the position of the infrared-pass filter.
+- The inside of the telephoto module and the exact path of the light through the prism.
+- The Pro Max outline: 78.0 × 163.4 mm as reported by Wikipedia (Apple's page for that model was not
+  checked), scaled from the Pro's shape, with its battery drawn larger by eye.
+- The hair and the 2 mm screw beside the blade are to scale (0.07 mm and 2 mm).
+
 ## Not shown, because the sources conflict or are silent
 
-- Battery capacities of physical-SIM models and of the Pro Max.
-- Which modem the US Pro Max uses.
+- Battery capacities of physical-SIM models.
 - The amount of memory.
