@@ -3,6 +3,8 @@
 // list follow Apple's specifications and iFixit's teardown; positions and sizes of internal parts are
 // estimates from Apple's cutaway renders (docs/RESEARCH.md says which is which).
 import * as THREE from 'three';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+import { Brush, Evaluator, SUBTRACTION } from 'three-bvh-csg';
 import { rrect, rpoly, circle, plate, box, cyl, ring, dome, group, flex, decal, textTexture, wallpaperTexture, dieTexture } from '../kit.js';
 
 export const W = 71.9, H = 150.0, D = 8.75;
@@ -17,6 +19,14 @@ const BATT = [[-8, -56], [30, -56], [30, 14], [-30, 14], [-30, -41], [-8, -41]];
 const VAPOR = [[-8.5, -56.5], [30.8, -56.5], [30.8, 15], [7, 15], [7, 34], [-30.8, 34], [-30.8, -41.5], [-8.5, -41.5]];
 const BOARD = [[-31, 16.5], [8, 16.5], [8, 35], [-12.5, 35], [-12.5, 71], [-31, 71]];       // logic board outline
 export const SOC = [-13, 25.8];
+const FRONT_CAMERA = [4.2, 66.2];
+
+// Turn an XY profile into a part that faces the bottom edge of the phone.
+function bottomPart(part) {
+  part.rotation.x = Math.PI / 2;
+  part.position.y = -H / 2;
+  return part;
+}
 
 export function buildPhone(M) {
   const R = {};
@@ -25,7 +35,24 @@ export function buildPhone(M) {
   // ------------------------------------------------------------ aluminium unibody
   const chassis = R.chassis = group('Aluminium unibody');
   const outer = rrect(W, H, 11.6), inner = rrect(W - 5, H - 5, 9.2, 0, 0, THREE.Path);
-  chassis.add(plate(outer, ZB, ZI, M.body, { holes: [inner], bevel: 0.75, name: 'Frame', segs: 14, bsegs: 3 }));
+  const frame = plate(outer, ZB, ZI, M.body, { holes: [inner], bevel: 0.75, name: 'Frame', segs: 14, bsegs: 3 });
+  const portProfile = rrect(8.6, 2.9, 1.45);
+  const portCut = bottomPart(plate(portProfile, -3.5, 0.8, M.black, { bevel: 0 }));
+  const grille = Array.from({ length: 10 }, (_, i) => (i < 5 ? -25 + i * 3.1 : 12.6 + (i - 5) * 3.1));
+  const cutters = [portCut, ...grille.map((x) =>
+    bottomPart(plate(circle(0.64, x, 0, THREE.Shape), -3.5, 0.6, M.black, { bevel: 0 })))];
+  const evaluator = new Evaluator();
+  evaluator.useGroups = false;
+  let cutFrame = new Brush(frame.geometry, M.body);
+  for (const cutter of cutters) {
+    const brush = new Brush(cutter.geometry, cutter.material);
+    brush.position.copy(cutter.position);
+    brush.rotation.copy(cutter.rotation);
+    brush.updateMatrixWorld();
+    cutFrame = evaluator.evaluate(cutFrame, brush, SUBTRACTION);
+  }
+  frame.geometry = cutFrame.geometry;
+  chassis.add(frame);
   const lensHoles = Object.values(LENS).map(([x, y]) => circle(6.55, x, y));
   // rear wall under the camera plateau, and the plateau itself
   chassis.add(plate(rrect(W - 4.6, 37.8, [1, 1, 9.4, 9.4], 0, 53.9), ZB, ZB + 0.9, M.body, { holes: lensHoles, bevel: 0.05, name: 'Rear wall' }));
@@ -44,11 +71,12 @@ export function buildPhone(M) {
   const btn = (x, y, len, name, mat = M.body) => { const b = plate(rrect(1.5, len, 0.7, x, y), -1.5, 1.5, mat, { bevel: 0.3, name }); b.userData.at = [x, y, 0]; chassis.add(b); return b; };
   R.btn = { action: btn(-W / 2 - 0.2, 43, 6.5, 'Action button'), volUp: btn(-W / 2 - 0.2, 27.4, 11.5, 'Volume up'), volDown: btn(-W / 2 - 0.2, 12.8, 11.5, 'Volume down'),
     side: btn(W / 2 + 0.2, 26, 17.5, 'Side button'), cc: btn(W / 2 + 0.05, -16, 15.5, 'Camera Control', M.glassBlack) };
-  // bottom edge: speaker and microphone holes, pentalobe screws, USB-C opening
+  // Dark grille mesh sits behind the bores, with the screw heads flush to the frame.
+  for (const x of grille) {
+    chassis.add(bottomPart(plate(circle(0.72, x, 0, THREE.Shape), -2.55, -2.45, M.black, { bevel: 0, name: 'Grille backing' })));
+  }
   const edge = (x, r, mat, name) => { const m = cyl(r, -0.3, 0.3, mat, 0, 0, name); m.rotation.set(0, 0, 0); m.scale.set(r, 0.5, r); m.position.set(x, -H / 2 - 0.02, 0); chassis.add(m); };
-  for (let i = 0; i < 5; i++) { edge(-25 + i * 3.1, 0.75, M.black, 'Microphone grille'); edge(12.6 + i * 3.1, 0.75, M.black, 'Speaker grille'); }
   edge(-8.2, 0.8, M.steel, 'Pentalobe screw'); edge(8.2, 0.8, M.steel, 'Pentalobe screw');
-  const port = plate(rrect(8.6, 2.9, 1.45), 0, 0.5, M.black, { bevel: 0.1, name: 'USB-C opening' }); port.rotation.x = Math.PI / 2; port.position.set(0, -H / 2 + 0.3, 0); chassis.add(port);
   // inside the frame: screw bosses and ribs (these are what read through the glass look)
   const boss = (x, y, h = 2.2) => { chassis.add(ring(1.25, 0.5, ZB + 0.9, ZB + 0.9 + h, M.bodyInner, x, y, 'Screw boss', 0, 8)); };
   for (let i = 0; i < 9; i++) { const y = -62 + i * 15.2; boss(-31.6, y); boss(31.6, y); }
@@ -60,6 +88,16 @@ export function buildPhone(M) {
   // ------------------------------------------------------------ rear glass with the charging coil
   const back = R.back = group('Ceramic Shield back');
   back.add(plate(rrect(W - 5.3, 107.4, [8.9, 8.9, 2, 2], 0, -18.9), ZB, ZB + 0.85, M.backGlass, { bevel: 0.2, name: 'Rear glass panel' }));
+  // Apple silhouette from https://github.com/simple-icons/simple-icons/blob/develop/icons/apple.svg
+  const logoSvg = new SVGLoader().parse(`<svg xmlns="http://www.w3.org/2000/svg">
+    <path transform="scale(1,-1)" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z"/>
+  </svg>`);
+  const logoGeometry = new THREE.ShapeGeometry(SVGLoader.createShapes(logoSvg.paths[0]), 16);
+  logoGeometry.center().scale(0.75, 0.75, 1).rotateY(Math.PI);
+  const logo = new THREE.Mesh(logoGeometry, M.backLogo);
+  logo.name = 'Apple logo';
+  logo.position.set(0, -14, ZB - 0.02);
+  back.add(logo);
   const coil = R.coil = group('Wireless charging coil');
   for (let i = 0; i < 9; i++) coil.add(ring(21.5 - i * 1.05, 20.7 - i * 1.05, ZB + 0.85, ZB + 1.1, M.copper, 0, -14, 'Coil winding', 0, 40));
   for (let i = 0; i < 16; i++) {                                         // magnet array around the coil
@@ -109,7 +147,12 @@ export function buildPhone(M) {
   speaker.add(box(8, 6, 0.4, M.steel, -9.5, 0, 2.2, 'Driver plate'));
   speaker.position.set(16.5, -64.2, -0.6);
   const usb = R.usb = group('USB-C port');
-  usb.add(box(9.6, 7.4, 3.3, M.steel, 0, -68.6, -0.2, 'USB-C shell', 1.2), box(13, 2.2, 0.5, M.steelDark, 0, -65.2, 1.2, 'Port bracket'), box(14, 5, 0.3, M.pcb2, -10, -66.5, -1.9, 'Port board'),
+  const socket = bottomPart(plate(rrect(9.6, 3.5, 1.65), -10.1, -2.55, M.steelDark, {
+    holes: [rrect(8.2, 2.6, 1.3, 0, 0, THREE.Path)], bevel: 0.05, name: 'USB-C shell',
+  }));
+  usb.add(socket, box(8.4, 0.5, 2.75, M.black, 0, -66.1, 0, 'Socket back'),
+    box(5.8, 4.6, 0.5, M.plastic, 0, -69, 0, 'USB-C contact tongue'),
+    box(13, 2.2, 0.5, M.steelDark, 0, -65.2, 1.2, 'Port bracket'), box(14, 5, 0.3, M.pcb2, -10, -66.5, -1.9, 'Port board'),
     box(1.6, 1.6, 1.2, M.steelDark, -21, -70, -1.2, 'Bottom microphone'));
   R.usbFlex = flex([[-12, -66.5, -2.2], [-32.2, -66.5, -2.2], [-32.2, 22, -2.2], [-29, 22, -2.2]], 2.6, M.flex, 'USB-C flex cable');
   usb.add(R.usbFlex);
@@ -215,9 +258,9 @@ export function buildPhone(M) {
 
   // ------------------------------------------------------------ front sensors
   const front = R.frontCam = group('Front camera array', box(21, 6.2, 1.5, M.steelDark, 0, 0, 0, 'Array bracket', 0.5),
-    cyl(2.5, 0.6, 1.3, M.black, 4.2, 0, 'Center Stage front camera'), dome(1.7, 0.4, M.lensGlass, 4.2, 0, 1.3, 1), cyl(1.9, 0.6, 1.15, M.blackGloss, -4.2, 0, 'Dot projector'),
+    cyl(2.5, 0.6, 1.3, M.black, FRONT_CAMERA[0], 0, 'Center Stage front camera'), dome(1.7, 0.4, M.frontLens, FRONT_CAMERA[0], 0, 1.3, 1), cyl(1.9, 0.6, 1.15, M.blackGloss, -4.2, 0, 'Dot projector'),
     flex([[9, 0, -0.6], [9, -7, -0.6]], 4, M.flex, 'Front camera flex'));
-  front.position.set(0, 66.2, 1.95);
+  front.position.set(0, FRONT_CAMERA[1], 1.95);
   const ir = R.irCam = group('Infrared camera', box(6.4, 6.4, 1.1, M.steelDark, 0, 0, 0, 'Infrared camera module', 0.4), cyl(1.8, 0.4, 0.75, M.blackGloss, 0, 0, 'Infrared camera lens'), dome(1.2, 0.3, M.lensGlass, 0, 0, 0.75, 1));
   ir.position.set(-22.5, 64, 2.25);
   const ear = R.earpiece = box(13, 2.2, 1.8, M.plastic, 0, 71.2, 1.9, 'Earpiece speaker');
@@ -232,16 +275,26 @@ export function buildPhone(M) {
   const dBack = R.dBack = group('Heat spreader', plate(rrect(W - 9, H - 30, 3, 0, -8), 2.85, 2.94, M.copper, { bevel: 0.02, name: 'Panel heat spreader' }),
     box(16, 8, 0.25, M.flex, 14, -66, 2.8, 'Display flex'), box(11, 3, 0.5, M.steelDark, 14, -62.5, 2.7, 'Display connector'));
   display.add(dBack, dPanel, dGlass);
-  const screen = decal(W - 4.2, H - 4.2, wallpaperTexture(M.finish.tone), 0, 0, ZF + 0.012, { emissive: 1.0, roughness: 0.2 });
-  { // round the corners of the picture with an alpha mask
+  const screenWidth = W - 4.2, screenHeight = H - 4.2;
+  const islandWidth = 15.4, islandHeight = 4.9;
+  const [cameraX, cameraY] = FRONT_CAMERA;
+  const screen = decal(screenWidth, screenHeight, wallpaperTexture(M.finish.tone), 0, 0, ZF + 0.012, { emissive: 1.0, roughness: 0.2 });
+  { // Mask the rounded display corners and the Dynamic Island in the wallpaper.
     const c = document.createElement('canvas'); c.width = 512; c.height = 1100; const g = c.getContext('2d');
     g.fillStyle = '#000'; g.fillRect(0, 0, 512, 1100); g.fillStyle = '#fff'; g.beginPath(); g.roundRect(0, 0, 512, 1100, 68); g.fill();
-    screen.material.alphaMap = new THREE.CanvasTexture(c); screen.material.transparent = true; screen.material.alphaTest = 0;
+    const width = islandWidth * c.width / screenWidth, height = islandHeight * c.height / screenHeight;
+    const top = (0.5 - (cameraY + islandHeight / 2) / screenHeight) * c.height;
+    g.fillStyle = '#000'; g.beginPath(); g.roundRect((c.width - width) / 2, top, width, height, height / 2); g.fill();
+    screen.material.alphaMap = new THREE.CanvasTexture(c);
+    screen.material.alphaTest = 0.5;
+    screen.material.polygonOffset = false;
   }
   screen.name = 'Lit display'; R.screen = screen;
-  const island = plate(rrect(15.4, 4.9, 2.45, 0, 66.2), ZF + 0.05, ZF + 0.09, new THREE.MeshBasicMaterial({ color: 0x000000 }), { bevel: 0, name: 'Dynamic Island' });
+  const island = plate(rrect(islandWidth, islandHeight, islandHeight / 2, 0, cameraY), ZF + 0.05, ZF + 0.09, new THREE.MeshBasicMaterial({ color: 0x000000 }), { bevel: 0, name: 'Dynamic Island' });
   island.castShadow = false;
-  dGlass.add(screen, island, cyl(1.1, ZF + 0.09, ZF + 0.1, M.lensGlass, 4.2, 66.2, 'Front camera window'));
+  const cameraWindow = cyl(1.35, ZF + 0.09, ZF + 0.13, M.frontLens, cameraX, cameraY, 'Front camera window');
+  cameraWindow.castShadow = cameraWindow.receiveShadow = false;
+  dGlass.add(screen, island, cameraWindow);
   phone.add(display);
 
   return { group: phone, refs: R };
