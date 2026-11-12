@@ -11,254 +11,254 @@ export const TIMING = {
   },
   "h2b": {
    "start": 19.359,
-   "dur": 8.255
+   "dur": 8.385
   },
   "h3": {
-   "start": 28.414,
+   "start": 28.544,
    "dur": 4.676
   },
   "o1": {
-   "start": 41.09,
+   "start": 41.22,
    "dur": 9.561
   },
   "o2": {
-   "start": 51.451,
+   "start": 51.581,
    "dur": 9.848
   },
   "o3": {
-   "start": 62.099,
+   "start": 62.229,
    "dur": 7.131
   },
   "o4": {
-   "start": 70.03,
+   "start": 70.161,
    "dur": 9.744
   },
   "o5": {
-   "start": 80.574,
+   "start": 80.704,
    "dur": 12.016
   },
   "o6": {
-   "start": 93.39,
+   "start": 93.521,
    "dur": 9.456
   },
   "w1": {
-   "start": 107.447,
+   "start": 107.577,
    "dur": 9.509
   },
   "w2": {
-   "start": 117.755,
+   "start": 117.886,
    "dur": 9.43
   },
   "w2b": {
-   "start": 128.985,
-   "dur": 9.038
+   "start": 129.116,
+   "dur": 7.889
   },
   "w3": {
-   "start": 138.824,
-   "dur": 9.221
+   "start": 137.805,
+   "dur": 7.837
   },
   "w3b": {
-   "start": 148.845,
-   "dur": 7.523
+   "start": 146.442,
+   "dur": 7.706
   },
   "w4": {
-   "start": 157.168,
+   "start": 154.948,
    "dur": 10.71
   },
   "d1": {
-   "start": 172.478,
+   "start": 170.258,
    "dur": 12.722
   },
   "d2": {
-   "start": 186.6,
+   "start": 184.38,
    "dur": 8.072
   },
   "d3": {
-   "start": 195.472,
+   "start": 193.251,
    "dur": 9.143
   },
   "d4": {
-   "start": 206.215,
-   "dur": 8.96
+   "start": 203.994,
+   "dur": 8.49
   },
   "d5": {
-   "start": 215.975,
+   "start": 213.284,
    "dur": 10.214
   },
   "b1": {
-   "start": 230.789,
+   "start": 228.098,
    "dur": 7.602
   },
   "b1b": {
-   "start": 239.19,
+   "start": 236.5,
    "dur": 4.859
   },
   "b2": {
-   "start": 244.849,
+   "start": 242.158,
    "dur": 5.747
   },
   "b2b": {
-   "start": 252.596,
+   "start": 249.905,
    "dur": 7.602
   },
   "b3": {
-   "start": 260.998,
+   "start": 258.307,
    "dur": 8.307
   },
   "b3b": {
-   "start": 270.904,
+   "start": 268.214,
    "dur": 7.654
   },
   "b4": {
-   "start": 279.358,
+   "start": 276.668,
    "dur": 9.456
   },
   "p1": {
-   "start": 293.415,
+   "start": 290.724,
    "dur": 11.598
   },
   "p2": {
-   "start": 305.813,
+   "start": 303.122,
    "dur": 7.001
   },
   "p3": {
-   "start": 313.614,
+   "start": 310.923,
    "dur": 9.273
   },
   "c1": {
-   "start": 327.487,
+   "start": 324.797,
    "dur": 9.796
   },
   "c1b": {
-   "start": 338.083,
+   "start": 335.393,
    "dur": 7.236
   },
   "c2": {
-   "start": 346.919,
+   "start": 344.229,
    "dur": 9.744
   },
   "c2b": {
-   "start": 358.463,
+   "start": 355.772,
    "dur": 5.982
   },
   "c2c": {
-   "start": 365.245,
+   "start": 362.554,
    "dur": 8.202
   },
   "c3": {
-   "start": 378.047,
+   "start": 375.357,
    "dur": 10.266
   },
   "c3b": {
-   "start": 389.113,
-   "dur": 9.874
+   "start": 386.423,
+   "dur": 8.307
   },
   "c4": {
-   "start": 400.388,
+   "start": 396.13,
    "dur": 8.124
   },
   "c5": {
-   "start": 409.312,
+   "start": 405.054,
    "dur": 11.363
   },
   "c5b": {
-   "start": 422.075,
+   "start": 417.817,
    "dur": 3.004
   },
   "c6": {
-   "start": 425.879,
+   "start": 421.621,
    "dur": 10.162
   },
   "c6b": {
-   "start": 436.841,
-   "dur": 6.713
+   "start": 432.583,
+   "dur": 9.195
   },
   "c7": {
-   "start": 444.354,
+   "start": 442.578,
    "dur": 5.251
   },
   "e1": {
-   "start": 454.805,
+   "start": 453.029,
    "dur": 3.657
   },
   "k2": {
-   "start": 459.262,
+   "start": 457.486,
    "dur": 5.616
   },
   "k3": {
-   "start": 465.678,
+   "start": 463.902,
    "dur": 12.251
   },
   "k4": {
-   "start": 479.53,
+   "start": 477.753,
    "dur": 4.963
   },
   "k5": {
-   "start": 485.293,
+   "start": 483.517,
    "dur": 6.296
   },
   "k6": {
-   "start": 492.389,
-   "dur": 13.819
+   "start": 490.612,
+   "dur": 10.998
   },
   "e2": {
-   "start": 510.807,
+   "start": 506.21,
    "dur": 9.509
   },
   "e2b": {
-   "start": 521.116,
+   "start": 516.518,
    "dur": 8.856
   },
   "e2c": {
-   "start": 531.371,
+   "start": 526.774,
    "dur": 3.944
   },
   "e3": {
-   "start": 536.116,
-   "dur": 10.998
+   "start": 531.518,
+   "dur": 8.594
   },
   "e3b": {
-   "start": 547.913,
+   "start": 540.913,
    "dur": 3.84
   },
   "e3c": {
-   "start": 553.753,
+   "start": 546.753,
    "dur": 9.848
   },
   "e4": {
-   "start": 564.402,
+   "start": 557.401,
    "dur": 6.687
   },
   "e5": {
-   "start": 572.889,
-   "dur": 11.311
+   "start": 565.888,
+   "dur": 7.419
   },
   "e5b": {
-   "start": 585,
-   "dur": 8.673
+   "start": 574.107,
+   "dur": 8.803
   },
   "e5c": {
-   "start": 594.473,
-   "dur": 8.542
+   "start": 583.71,
+   "dur": 9.979
   },
   "v1": {
-   "start": 607.615,
-   "dur": 6.713
+   "start": 598.289,
+   "dur": 6.269
   },
   "v2": {
-   "start": 615.128,
-   "dur": 7.131
+   "start": 605.358,
+   "dur": 8.202
   },
   "v2b": {
-   "start": 623.66,
-   "dur": 7.941
+   "start": 614.961,
+   "dur": 7.419
   },
   "v2c": {
-   "start": 632.401,
-   "dur": 7.967
+   "start": 623.18,
+   "dur": 7.889
   },
   "v3": {
-   "start": 641.168,
+   "start": 631.869,
    "dur": 4.258
   }
  },
@@ -268,45 +268,45 @@ export const TIMING = {
    "title": null
   },
   "outside": {
-   "start": 37.49,
+   "start": 37.62,
    "title": "The outside"
   },
   "in": {
-   "start": 103.847,
+   "start": 103.977,
    "title": "The way in"
   },
   "display": {
-   "start": 168.878,
+   "start": 166.658,
    "title": "Display and Face ID"
   },
   "battery": {
-   "start": 227.189,
+   "start": 224.498,
    "title": "The battery"
   },
   "bottom": {
-   "start": 289.815,
+   "start": 287.124,
    "title": "The bottom end"
   },
   "cool": {
-   "start": 323.887,
+   "start": 321.197,
    "title": "Staying cool"
   },
   "brain": {
-   "start": 374.447,
+   "start": 371.757,
    "title": "The brain"
   },
   "cameras": {
-   "start": 451.205,
+   "start": 449.429,
    "title": "Three cameras"
   },
   "eye": {
-   "start": 507.207,
+   "start": 502.61,
    "title": "The eye"
   },
   "verdict": {
-   "start": 604.015,
+   "start": 594.689,
    "title": "The verdict"
   }
  },
- "total": 656.426
+ "total": 647.127
 };

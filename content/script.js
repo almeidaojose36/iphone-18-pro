@@ -8,7 +8,7 @@ export const CHAPTERS = [
   { id: 'hook', title: null, beats: [
     { id: 'h1', text: 'This is the iPhone 18 Pro. Seventy-two millimeters wide, and less than nine thick.' },
     { id: 'h2', text: 'Inside it: a two nanometer chip, a vapor chamber, and the first iPhone camera with an aperture that physically opens and closes.' },
-    { id: 'h2b', text: 'iFixit gave it seven out of ten for repairability. And called one tiny part of it about as close to unrepairable as it gets.' },
+    { id: 'h2b', text: 'Some of those parts lift out as modules. But inside the main camera, six tiny moving blades are built into a single assembly.' },
     { id: 'h3', text: 'So let\'s take it apart, layer by layer, and find out why.', pause: 1.0, hold: 3.4 },
   ] },
 
@@ -24,9 +24,9 @@ export const CHAPTERS = [
   { id: 'in', title: 'The way in', beats: [
     { id: 'w1', text: 'The back is a panel of glass, and it comes away easily. But there is little to service behind it. Only the wireless charging coil, built into the panel itself.' },
     { id: 'w2', text: 'The real way in is through the front. The display is glued down, and has to be heated to around seventy degrees Celsius before it lets go.', hold: 1.0 },
-    { id: 'w2b', text: 'In iFixit\'s teardown, the one display that came away cleanly needed fifteen minutes at seventy degrees, and then ten more at seventy-two.' },
-    { id: 'w3', text: 'Almost every repair starts here, and it is risky. When iFixit opened four of these phones, the display frame cracked or pulled away on three of them.' },
-    { id: 'w3b', text: 'Their reaction to going in through the screen: disappointed, but not surprised. Apple built last year\'s phone the same way.' },
+    { id: 'w2b', text: 'Heat softens the adhesive around the edge. The display has to lift evenly, or the glass and its frame can start to separate.' },
+    { id: 'w3', text: 'Almost every repair starts here. If the adhesive is still holding in one spot, lifting the screen can bend or crack its frame.' },
+    { id: 'w3b', text: 'Apple used the same front-entry layout last year. The back panel opens separately, but the display is still the route to the main components.' },
     { id: 'w4', text: 'With the screen off, the whole layout is visible. Cameras and logic board at the top. Battery in the middle. Speaker, Taptic Engine and the U S B C port at the bottom.', pause: 1.0 },
   ] },
 
@@ -34,7 +34,7 @@ export const CHAPTERS = [
     { id: 'd1', text: 'Before going deeper, look at the display itself. A cover of glass on top. Beneath it, the O LED panel, the layer that actually makes the light. And behind that, a thin sheet that spreads heat.', hold: 0.6 },
     { id: 'd2', text: 'At the top of the phone sits the front camera array. It disconnects, and lifts straight out, with no screws and no glue.' },
     { id: 'd3', text: 'It holds the eighteen megapixel selfie camera, and the dot projector, which throws a pattern of invisible infrared dots onto your face.', hold: 0.8 },
-    { id: 'd4', text: 'The camera that reads those dots has moved. iFixit found it under the display itself, near the top left corner, looking out through the screen.' },
+    { id: 'd4', text: 'The camera that reads those dots has moved. It now sits beneath the display, near the top left corner, and looks out through the screen.' },
     { id: 'd5', text: 'Under the panel, at that spot, is what appears to be a filter that lets infrared light pass. So the sensor can see through the display, and you cannot see the sensor.', pause: 1.0 },
   ] },
 
@@ -64,12 +64,12 @@ export const CHAPTERS = [
 
   { id: 'brain', title: 'The brain', beats: [
     { id: 'c3', text: 'The heat comes from here. The logic board is two boards, stacked like a sandwich. The A twenty Pro sits on the outside, pressed toward the vapor chamber.' },
-    { id: 'c3b', text: 'Between chip and chamber, iFixit found a stack of materials. A layer it calls thermal chain mail. A spongy pad. And a filler that molds itself to the gap.', hold: 0.6 },
+    { id: 'c3b', text: 'Between the chip and the chamber sit three layers: a fine metal mesh, a compressible pad, and a filler that conforms to the gap.', hold: 0.6 },
     { id: 'c4', text: 'And the memory has moved. Last year it was stacked on top of the processor. Now it sits beside it, out of the path of the heat.' },
     { id: 'c5', text: 'Inside the package is the processor itself. Six processor cores, two fast, and four efficient. Seven graphics cores. And two sixteen core neural engines.', hold: 0.6 },
     { id: 'c5b', text: 'All of it is built on a two nanometer process.' },
     { id: 'c6', text: 'The second board carries the radios. Apple\'s own C 2 modem for cellular. And the N 1 chip, for Wi-Fi seven, Bluetooth six, and Thread.' },
-    { id: 'c6b', text: 'There is one exception. In the Pro Max sold in the United States, iFixit found a Qualcomm modem instead.' },
+    { id: 'c6b', text: 'The U.S. version of the larger Pro Max uses a Qualcomm modem. The one shown here is the smaller Pro, with Apple\'s C 2.' },
     { id: 'c7', text: 'And the flash storage sits inside the sandwich. To reach it, the two boards have to be separated.', pause: 1.0, hold: 0.6 },
   ] },
 
@@ -79,27 +79,27 @@ export const CHAPTERS = [
     { id: 'k3', text: 'The telephoto, also forty-eight megapixels. Its lens would be too long to fit in a phone this thin. So the light is folded, bouncing four times inside a prism before it reaches the sensor.', hold: 0.8 },
     { id: 'k4', text: 'That gives four times optical zoom, the equivalent of a hundred millimeter lens.' },
     { id: 'k5', text: 'Beside them sit the flash, and the LiDAR scanner, which measures depth with pulses of infrared light.' },
-    { id: 'k6', text: 'And the main camera. Forty-eight megapixels, on a sensor a little under half an inch across, stabilized by shifting the sensor itself. On both models, iFixit found it easy to reach, and painless to swap.', pause: 1.0 },
+    { id: 'k6', text: 'And the main camera. Forty-eight megapixels, on a sensor a little under half an inch across. The sensor shifts to steady the image, and the whole camera lifts out as a module.', pause: 1.0 },
   ] },
 
   { id: 'eye', title: 'The eye', beats: [
     { id: 'e2', text: 'But the main camera has something new. In front of its lens sit six blades, each about as thin as a human hair. Together, they form an iris.' },
     { id: 'e2b', text: 'Each blade is a sliver of polymer composite. It has a round hole to pivot on, and a slot, where a pin slides to swing it in and out.', hold: 0.6 },
     { id: 'e2c', text: 'Next to one, a two millimeter screw looks enormous.' },
-    { id: 'e3', text: 'Wide open, at f one point four eight, the opening is four point six millimeters across. iFixit calls it the widest aperture on an iPhone camera, ever.' },
+    { id: 'e3', text: 'Wide open, at f one point four eight, the opening is about four point six millimeters across. Watch how that circle changes as the blades turn.' },
     { id: 'e3b', text: 'Then it steps down. One point eight. Two point eight. Four.', pause: 1.0, hold: 1.0 },
     { id: 'e3c', text: 'A wide aperture lets in more light, and blurs the background. A narrow one keeps more of the scene sharp. Until now, an iPhone made that choice in software.' },
     { id: 'e4', text: 'The blades are moved by magnetism. Hold a magnet close, and the iris opens and closes.', hold: 1.0 },
-    { id: 'e5', text: 'It is remarkable engineering. It is also, in iFixit\'s words, about as close as it gets to unrepairable. If it is damaged, the whole camera is replaced.' },
-    { id: 'e5b', text: 'Apple sold the camera assembly for last year\'s Pro at two hundred and forty-nine dollars. iFixit expects this one to cost more.' },
-    { id: 'e5c', text: 'Their advice, if the aperture is your only reason to upgrade: skip it. A lot of very tiny points of failure, for very little benefit.', pause: 1.0 },
+    { id: 'e5', text: 'The iris is built into the camera assembly. If a blade is damaged, the repair is to replace the whole camera module.' },
+    { id: 'e5b', text: 'For comparison, Apple listed the camera assembly for the iPhone seventeen Pro at two hundred and forty-nine dollars through Self Service Repair.' },
+    { id: 'e5c', text: 'That gives you real control over how much of a shot stays in focus. It also puts a moving mechanism inside a camera you service as one piece.', pause: 1.0 },
   ] },
 
   { id: 'verdict', title: 'The verdict', beats: [
-    { id: 'v1', text: 'So how repairable is it? iFixit gives the iPhone 18 Pro a provisional seven out of ten.' },
-    { id: 'v2', text: 'The screwed in battery tray and the removable cameras earn real credit. Having to go in through the screen takes it away.', hold: 0.6 },
-    { id: 'v2b', text: 'Apple also gets credit for its repair support. Though replacement parts still have to be calibrated, through its Repair Assistant software.' },
-    { id: 'v2c', text: 'And the score is provisional. iFixit is still checking how parts are paired to the phone, and whether they can be bought at all.' },
+    { id: 'v1', text: 'How much work does a repair take? It depends on the part, and on what you have to remove to reach it.' },
+    { id: 'v2', text: 'The battery tray is held by screws, and the cameras come out as modules. Reaching those parts means lifting the glued display first.', hold: 0.6 },
+    { id: 'v2b', text: 'Apple provides repair support, including Repair Assistant, which calibrates supported replacement parts after installation.' },
+    { id: 'v2c', text: 'So there are two things to consider before a repair: how you get to the part, and whether a replacement is available for your model.' },
     { id: 'v3', text: 'Less than nine millimeters thick. And all of this inside.', pause: 1.0, hold: 2.0 },
   ] },
 ];
