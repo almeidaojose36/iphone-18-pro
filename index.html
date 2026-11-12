@@ -24,6 +24,7 @@
   /* centred statements: words light up one after another */
   .headline { position: absolute; left: 0; right: 0; transform: translateY(-50%); text-align: center; padding: 0 calc(var(--u) * 12); }
   .headline .k { font-size: calc(var(--u) * 2.1); letter-spacing: .32em; text-transform: uppercase; color: var(--dim); font-weight: 500; margin-bottom: calc(var(--u) * 1.6); }
+  .headline.chapter .k { color: var(--ink); }
   .headline .t { font-size: calc(var(--u) * 4.6); font-weight: 500; letter-spacing: -.012em; line-height: 1.16; text-wrap: balance; text-shadow: 0 0 calc(var(--u) * 2.4) rgba(0, 0, 0, .9), 0 0 calc(var(--u) * .6) rgba(0, 0, 0, .7); }
   .headline.big .t { font-size: calc(var(--u) * 8.6); font-weight: 600; letter-spacing: -.028em; }
   .headline.small .t { font-size: calc(var(--u) * 4.0); }
@@ -33,7 +34,7 @@
   /* part labels: a hairline to the part, name and a quiet second line */
   .label { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; text-shadow: 0 0 calc(var(--u) * 1.4) #000, 0 0 calc(var(--u) * .5) #000; }
   .label b { display: block; font-size: calc(var(--u) * 2.9); font-weight: 500; letter-spacing: -.005em; }
-  .label span { display: block; font-size: calc(var(--u) * 2.1); color: #a1a1a6; margin-top: calc(var(--u) * .25); }
+  .label span { display: block; font-size: calc(var(--u) * 2.1); color: #b8b8bc; font-weight: 500; margin-top: calc(var(--u) * .25); }
   .label.left { text-align: right; } .label.right { text-align: left; }
 
   /* big numbers */
@@ -52,7 +53,14 @@
   body.render #ui { display: none; }
 </style>
 <script type="importmap">
-{ "imports": { "three": "./node_modules/three/build/three.module.js", "three/addons/": "./node_modules/three/examples/jsm/" } }
+{
+  "imports": {
+    "three": "./node_modules/three/build/three.module.js",
+    "three/addons/": "./node_modules/three/examples/jsm/",
+    "three-bvh-csg": "./node_modules/three-bvh-csg/src/index.js",
+    "three-mesh-bvh": "./node_modules/three-mesh-bvh/src/index.js"
+  }
+}
 </script>
 </head>
 <body>

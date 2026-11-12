@@ -8,8 +8,12 @@
     "start": "node tools/serve.mjs",
     "render": "node tools/render-video.mjs"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
-    "three": "0.170.0"
+    "three": "0.170.0",
+    "three-bvh-csg": "0.0.17",
+    "three-mesh-bvh": "0.8.3"
   }
 }
