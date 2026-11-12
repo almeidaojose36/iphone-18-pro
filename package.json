@@ -1,0 +1,15 @@
+{
+  "name": "iphone-18-pro-teardown",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Procedural 3D teardown animation of the iPhone 18 Pro, rendered with three.js",
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "render": "node tools/render-video.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "three": "0.170.0"
+  }
+}
