@@ -110,13 +110,13 @@ function updateOverlay(t) {
     const on = t >= h.t0 - 0.05 && t <= h.t1 + 0.05;
     h.el.style.display = on ? '' : 'none';
     if (!on) continue;
-    const base = ramp(t, h.t0, 0.5), out = 1 - ramp(t, h.t1 - 0.45, 0.45), n = h.words.length, step = Math.min(0.16, 1.1 / n);
+    const base = ramp(t, h.t0, h.chapter ? 0.35 : 0.5), out = 1 - ramp(t, h.t1 - 0.45, 0.45), n = h.words.length, step = Math.min(0.16, 1.1 / n);
     h.words.forEach((w, i) => {
-      const lit = ramp(t, h.t0 + 0.25 + i * step, 0.55) * (1 - ramp(t, h.t1 - 1.15 + i * step * 0.6, 0.45));
+      const lit = h.chapter ? 1 : ramp(t, h.t0 + 0.25 + i * step, 0.55) * (1 - ramp(t, h.t1 - 1.15 + i * step * 0.6, 0.45));
       w.style.opacity = base * out * (0.34 + 0.66 * lit);
       w.style.filter = base < 0.999 ? `blur(${((1 - base) * 0.9 * u).toFixed(2)}px)` : 'none';
     });
-    for (const q of ['.k', '.s']) { const e = h.el.querySelector(q); if (e) e.style.opacity = ramp(t, h.t0 + (q === '.s' ? 0.9 : 0.1), 0.6) * out; }
+    for (const q of ['.k', '.s']) { const e = h.el.querySelector(q); if (e) e.style.opacity = (h.chapter ? base : ramp(t, h.t0 + (q === '.s' ? 0.9 : 0.1), 0.6)) * out; }
     scrim = Math.max(scrim, (h.scrim ?? 0) * pulse(t, h.t0 - 0.05, 0.5, h.t1 - 0.5, 0.5));
   }
   $('scrim').style.opacity = scrim;

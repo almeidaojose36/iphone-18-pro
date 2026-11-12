@@ -228,13 +228,16 @@ export function buildStory({ phone, world, lights }) {
 
   // ------------------------------------------------------------ cameras
   const tCam = S('e1') + 0.4, tPrism = S('k3') + 0.6, tPrismOut = N('k4') - 1.2, tIso = S('e2') - 1.0;
+  const tTeleReturn = F('k3', 0.39), tMainFace = F('k6', 0.68);
   const tBlade = S('e2b') + 0.4, tBladeIn = N('e2c') - 1.0, tStack = S('e5') + 0.2, tUnit = F('e5', 0.66), tHome = N('e5c') - 1.6;
-  pose(R.ultra, [[tCam + 0.25, [0, 0, 28], 1.9], [S('k2') + 0.2, [0, 0, 40], 1.2], [S('k3') - 0.2, [0, 0, 28], 1.2], [S('k5') - 0.6, [0, 0, 0], 1.6]]);
-  pose(R.tele, [[tCam, [0, 0, 24], 1.9], [tPrism, [0, 0, 58], 2.0], [tPrismOut, [0, 0, 24], 1.6], [S('k5') - 0.6, [0, 0, 0], 1.6]]);
-  keyed(fTeleLid, [[tPrism + 1.6, 0, 1.4], [tPrismOut - 0.4, 1, 1.0]]);
+  pose(R.ultra, [[tCam + 0.25, [0, 0, 28], 1.9], [S('k2') + 0.2, [0, 0, 40, -PI / 2], 1.4], [S('k3') - 0.2, [0, 0, 28], 1.2], [S('k5') - 0.6, [0, 0, 0], 1.6]]);
+  pose(R.tele, [[tCam, [0, 0, 24], 1.9], [tPrism, [0, 0, 58, -PI / 2], 1.6],
+    [tTeleReturn, [0, 0, 58], 1.5], [tPrismOut, [0, 0, 24], 1.6], [S('k5') - 0.6, [0, 0, 0], 1.6]]);
+  keyed(fTeleLid, [[tTeleReturn + 0.5, 0, 1.4], [tPrismOut - 0.4, 1, 1.0]]);
   pose(R.rearSmall, [[S('k5') + 0.3, [0, 0, 18], 1.8], [N('k5') - 1.0, [0, 0, 0], 1.4], ...home(HERO.vapor, 0.25)]);
   // the main camera rises clear of the phone and turns its lens to the viewer
   pose(R.main, [[tCam + 0.5, [0, 0, 32], 1.9], [S('k5') - 0.6, [0, 0, 0], 1.6], [S('k6') - 0.4, [0, 0, 46, -0.5, 0, 0], 2.2],
+    [tMainFace, [0, 0, 46, -PI / 2], 1.5],
     [tIso, [-LENS.main[0], 10 - LENS.main[1], 86, -PI / 2, 0, 0], 2.8], [tHome, [0, 0, 0, 0, 0, 0], 2.4]]);
   pose(R.cams, home(HERO.cams, 0.6));
   cue(tCam, 'servo', 0.9); cue(tPrism, 'lift', 0.6); cue(S('k5') + 0.3, 'servo', 0.6); cue(S('k6') - 0.4, 'lift', 0.6); cue(tIso, 'whoosh', 0.6); cue(tHome, 'whoosh', 0.5);
@@ -353,12 +356,14 @@ export function buildStory({ phone, world, lights }) {
   cam.to(tOpen - 0.2, 2.8, [0.5, 1.35, 0.6], add(Bd, [-0.04, -0.05, 0.16]));
   // three cameras
   cam.to(CH('cameras') + 0.5, 2.8, [1.45, 1.55, 1.05], [0.05, 0.12, -0.42]);
-  cam.to(S('k2') - 0.2, 2.6, [0.75, 1.1, 0.25], [-0.1, 0.36, -0.54]);
-  cam.to(tPrism - 0.1, 3.0, [0.62, 1.15, -0.05], Tl);
+  cam.to(S('k2') - 0.2, 2.6, [0.22, 0.86, -0.29], [0.035, 0.42, -0.54]);
+  cam.to(tPrism - 0.1, 2.1, [0.36, 1.06, -0.38], [0.19, 0.6, -0.625]);
+  cam.to(tTeleReturn, 2.0, [0.62, 1.15, -0.05], Tl);
   cam.to(tBeam - 0.3, 3.0, [0.2, 1.3, -0.28], add(Tl, [-0.02, 0, 0]));
   cam.to(S('k4') - 0.1, 3.0, [0.7, 1.05, 0.0], add(Tl, [0.12, -0.05, 0]));
   cam.to(S('k5') - 0.6, 2.8, [-1.0, 1.1, 0.25], [-0.15, 0.12, -0.5]);
   cam.to(S('k6') - 0.4, 3.0, [1.0, 0.95, 0.35], [0.24, 0.42, -0.45]);
+  cam.to(tMainFace, 1.8, [0.37, 0.94, -0.16], [0.19, 0.48, -0.455]);
   // the eye
   cam.to(tIso, 3.0, [0.2, 0.93, 0.5], add(Mc, [0, 0, 0.06]));
   cam.to(tBlade - 0.1, 2.6, [0.06, 0.9, 0.28], add(Mc, [0.0, 0.0, 0.1]));
@@ -395,12 +400,11 @@ export function buildStory({ phone, world, lights }) {
   head(S('h2') + 0.5, F('h2', 0.3), 'A20 Pro. Two nanometers.', low);
   head(F('h2', 0.32), F('h2', 0.48), 'A vapor chamber.', low);
   head(F('h2', 0.52), N('h2') - 0.3, 'An aperture that opens and closes.', low);
-  stat(S('h2b') + 0.8, F('h2b', 0.5), 76, 42, '7 / 10', 'Provisional repairability · iFixit', { of: 10, n: (t) => Math.floor(7 * ramp(t, S('h2b') + 1.0, 1.6) + 0.01) });
-  head(F('h2b', 0.52), N('h2b') - 0.3, '“About as close as it gets” to unrepairable.', { ...low, sub: 'iFixit, on the variable aperture' });
+  head(F('h2b', 0.52), N('h2b') - 0.3, 'Six moving blades inside one camera module.', low);
   head(tTitle, CH('outside') - 0.2, TITLE, { kicker: 'Deep teardown', cls: 'big', scrim: 0.5, sub: 'Layer by layer' });
   cue(tTitle, 'impact');
   // chapter titles
-  CHAPTERS.filter((c) => c.title).forEach((c, i) => { head(CH(c.id) + 0.15, CH(c.id) + CARD, c.title, { kicker: String(i + 1).padStart(2, '0'), cls: 'big', scrim: 0.72 }); cue(CH(c.id), 'chapter'); });
+  CHAPTERS.filter((c) => c.title).forEach((c, i) => { head(CH(c.id) + 0.15, CH(c.id) + CARD, c.title, { kicker: String(i + 1).padStart(2, '0'), cls: 'big chapter', scrim: 0.72, chapter: true }); cue(CH(c.id), 'chapter'); });
   // the outside
   label(F('o1', 0.3), N('o1') - 0.3, of(P, W / 2, -30, 0), [14, 10], 'Aluminum unibody', 'One piece');
   stat(F('o1', 0.62), N('o1') - 0.3, 78, 38, '85%', 'Recycled aluminum in the enclosure · Apple');
@@ -424,12 +428,9 @@ export function buildStory({ phone, world, lights }) {
   label(tBack + 3.2, N('w1') - 3.2, of(R.back, 0, -50, -4), [-14, 16], 'Ceramic Shield back', 'Glass, opens easily');
   label(F('w1', 0.74), N('w1') - 3.2, of(R.coil, 21, -14, -3), [-12, -18], 'Wireless charging coil', 'Built into the panel');
   label(F('w1', 0.74) + 0.7, N('w1') - 3.2, of(R.coil, -26.4, -14, -3), [12, 14], 'MagSafe magnets', '');
-  stat(S('w2') + 4.6, S('w2b') + 0.6, 76, 40, (t) => `${Math.round(21 + 49 * ramp(t, S('w2') + 4.8, 3.2))} °C`, 'To soften the display adhesive');
-  const mins = (t) => 15 * ramp(t, F('w2b', 0.2), 2.6) + 10 * ramp(t, F('w2b', 0.62), 1.8);
-  stat(S('w2b') + 1.0, tPeel + 0.8, 76, 40, (t) => `${Math.floor(mins(t))} min`, (t) => (t < F('w2b', 0.62) ? 'At 70 °C' : 'At 70 °C, then 72 °C · iFixit'));
+  stat(S('w2') + 1.6, S('w2b') + 0.6, 76, 40, '70 °C', 'Approximate temperature to soften the adhesive');
   label(tPeel + 2.6, S('w3') + 3.0, of(R.display, -W / 2, 20, 4), [-12, -16], 'Display', 'Glued to the frame');
-  stat(F('w3', 0.52), N('w3') - 0.4, 77, 38, '3 of 4', 'Display frames cracked or pulled away · iFixit');
-  head(S('w3b') + 1.6, N('w3b') - 0.3, '“Disappointed, but not surprised.”', { ...low, sub: 'iFixit, on going in through the screen' });
+  head(S('w3b') + 1.6, N('w3b') - 0.3, 'The main components are accessed through the display.', low);
   const w4 = [[0.34, R.tele, [-17, 0, 3], [14, -12], 'Rear cameras'], [0.42, boardP, [-10, 10, 2], [-16, -6], 'Logic board'], [0.55, R.cell, [-20, -10, 2.3], [-20, 4], 'Battery'],
     [0.69, R.speaker, [4, 0, 2.2], [16, 2], 'Speaker'], [0.76, R.taptic, [-4, 0, 2], [-16, 4], 'Taptic Engine'], [0.88, R.usb, [0, -68.6, 1.6], [10, 12], 'USB-C port']];
   for (const [f, obj, p, off, title] of w4) label(F('w4', f), N('w4') - 0.3, of(obj, ...p), off, title);
@@ -441,7 +442,7 @@ export function buildStory({ phone, world, lights }) {
   label(S('d3') + 1.0, N('d3') - 0.4, of(R.frontCam, 4.2, 0, 1.3), [14, 8], 'Selfie camera', '18MP Center Stage');
   label(F('d3', 0.36), N('d3') - 0.4, of(R.frontCam, -4.2, 0, 1.2), [-14, 10], 'Dot projector', 'Infrared dot pattern');
   label(F('d4', 0.42), tUnder - 0.8, of(R.irCam, 0, 0, 0.8), [-14, -12], 'Infrared camera', 'Now under the display');
-  label(S('d5') + 1.6, tUnderOut - 0.2, of(R.dPanel, -22.5, 64, 2.9), [14, -14], 'Infrared-pass filter', 'What it appears to be · iFixit');
+  label(S('d5') + 1.6, tUnderOut - 0.2, of(R.dPanel, -22.5, 64, 2.9), [14, -14], 'Infrared-pass filter', 'Likely function');
   label(S('d5') + 0.4, tUnderOut - 0.2, of(R.dBack, 10, -30, 2.85), [-10, 18], 'Underside of the display', '');
   // battery
   stat(F('b1', 0.36), S('b1b') + 0.2, 78, 40, '16.76 Wh', '4288 mAh · eSIM model');
@@ -477,33 +478,33 @@ export function buildStory({ phone, world, lights }) {
   label(F('c3', 0.62), tStackA - 0.3, of(R.soc, 6.5, 6.5, -2.7), [-14, -14], 'A20 Pro', 'On the outside of the sandwich');
   label(tSplit + 1.6, tStackA - 0.3, of(R.boardA, 8, 26, -1.7), [-14, -8], 'Board A', '');
   label(tSplit + 1.9, tStackA - 0.3, of(R.boardB, 8, 26, 0.3), [-14, 8], 'Board B', '');
-  const tk = [[R.tChain, 'Thermal chain mail', 'iFixit’s name for it', 0.3, 5, -12], [R.tPad, 'Spongy pad', '', 0.52, -1, -2], [R.tFill, 'Gap filler', 'Molds itself to the gap', 0.72, 2, 10]];
+  const tk = [[R.tChain, 'Fine metal mesh', '', 0.3, 5, -12], [R.tPad, 'Spongy pad', '', 0.52, -1, -2], [R.tFill, 'Gap filler', 'Molds itself to the gap', 0.72, 2, 10]];
   tk.forEach(([o, title, text, f, y, oy]) => label(F('c3b', f), tStackZ - 0.2, of(o, -6, y, -2.75), [-14, oy], title, text));
   label(S('c4') + 1.2, N('c4') - 0.5, of(R.ram, -5, 6, -2.7), [14, -16], 'Memory', 'Beside the processor, not on top of it');
   const dieAt = ([x, y, w, h]) => of(R.die, -(x + w / 2 - 0.5) * 9.7, (0.5 - y - h / 2) * 9.7, -2.37);
-  label(F('c5', 0.2), tRecap - 0.3, dieAt(DIE.p[0]), [14, -14], '2 performance cores', '');
-  label(F('c5', 0.34), tRecap - 0.3, dieAt(DIE.e[0]), [16, 2], '4 efficiency cores', '');
-  label(F('c5', 0.52), tRecap - 0.3, dieAt(DIE.gpu[1]), [-14, -12], '7-core GPU', '');
+  label(F('c5', 0.2), tRecap - 0.3, dieAt(DIE.p[0]), [-37, -16], '2 performance cores', '');
+  label(F('c5', 0.34), tRecap - 0.3, dieAt(DIE.e[0]), [-27, 0], '4 efficiency cores', '');
+  label(F('c5', 0.52), tRecap - 0.3, dieAt(DIE.gpu[1]), [27, -16], '7-core GPU', '');
   label(F('c5', 0.72), tRecap - 0.3, dieAt(DIE.npu[1]), [14, 16], 'Dual 16-core Neural Engine', '');
   head(F('c5', 0.1), N('c5') - 0.3, 'Schematic: Apple publishes the core counts, not the floor plan.', { y: 92, cls: 'small' });
   stat(S('c5b') + 0.2, N('c5b') - 0.9, 80, 40, '2 nm', 'Process · Apple');
   label(F('c6', 0.32), N('c6b') - 0.5, of(R.modem, 3, 3, 0.6), [14, -14], 'C2 modem', 'Cellular · Apple-designed');
   label(F('c6', 0.6), N('c6') - 0.3, of(R.n1, -3, 0, 0.6), [-14, -12], 'N1', 'Wi-Fi 7 · Bluetooth 6 · Thread');
-  head(S('c6b') + 1.4, N('c6b') - 0.3, 'US iPhone 18 Pro Max: a Qualcomm modem.', { ...low, sub: 'Found by iFixit' });
+  head(S('c6b') + 1.4, N('c6b') - 0.3, 'US iPhone 18 Pro Max: a Qualcomm modem.', low);
   label(tOpen + 1.8, tJoin - 0.2, of(R.nand, 6, 7, -0.4), [14, -12], 'Flash storage', 'Inside the sandwich');
   // three cameras
   label(S('k2') + 1.0, N('k2') - 0.3, of(R.ultra, 6.3, 0, 2.2), [14, -10], 'Ultra Wide', '48MP · 13 mm · ƒ/2.2');
   stat(F('k2', 0.6), N('k2') - 0.3, 22, 40, '120°', 'Field of view');
-  label(S('k3') + 0.8, tPrism + 1.4, of(R.tele, 7.7, 0, 2.6), [14, -10], 'Telephoto', '48MP · ƒ/2.8');
+  label(S('k3') + 0.8, tTeleReturn, of(R.tele, 7.7, 0, -2.6), [14, -10], 'Telephoto', '48MP · ƒ/2.8');
   label(tBeam + 0.4, tPrismOut - 0.8, of(R.prism, -13.5, 6.7, -0.2), [-14, -12], 'Tetraprism', 'Four reflections');
   label(tBeam + 2.4, tPrismOut - 0.8, of(R.prism, -25.2, 3.5, -2.4), [-12, 14], 'Sensor', '');
   stat(S('k4') + 0.6, N('k4') - 1.0, 80, 38, '4×', 'Optical zoom · 100 mm equivalent');
   label(S('k5') + 1.2, N('k5') - 1.0, of(R.rearSmall, -21.5, 63, -2.2), [-14, -12], 'Flash', '');
   label(F('k5', 0.4), N('k5') - 1.0, of(R.rearSmall, -21.5, 45.5, -2), [-14, 8], 'LiDAR Scanner', 'Depth from pulses of infrared light');
   label(S('k6') + 1.2, tIso - 0.2, of(R.main, 7.7, 5, 2.6), [14, -14], 'Main camera', '48MP · 24 mm');
-  label(F('k6', 0.3), tIso - 0.2, of(R.mSensor, 7.7, -4, 2.3), [14, 6], 'Sensor', 'A little under half an inch across');
-  label(F('k6', 0.48), tIso - 0.2, of(R.mOis, -7.7, 0, 0.3), [-14, -4], 'Sensor-shift stabilization', '');
-  head(F('k6', 0.72), N('k6') - 0.4, 'Easy to reach. Painless to swap.', { ...low, sub: 'iFixit, on the main camera module' });
+  label(F('k6', 0.3), tMainFace, of(R.mSensor, 7.7, -4, 2.3), [14, 6], 'Sensor', 'A little under half an inch across');
+  label(F('k6', 0.48), tMainFace, of(R.mOis, -7.7, 0, 0.3), [-14, -4], 'Sensor-shift stabilization', '');
+  head(F('k6', 0.72), N('k6') - 0.4, 'The main camera lifts out as a module.', low);
   // the eye
   label(F('e2', 0.5), N('e2') - 0.3, of(R.aperture, 3.6, -1.6, -7.5), [16, 10], 'Six blades', 'Each about as thin as a human hair');
   label(F('e2b', 0.42), tBladeIn - 0.3, of(R.blades[0], 0, 0, -7.3), [-14, -10], 'Pivot hole', '');
@@ -519,16 +520,15 @@ export function buildStory({ phone, world, lights }) {
   stack.forEach(([o, p, name], i) => label(tStack + 1.5 + i * 0.3, tUnit + 0.3, of(o, ...p), [[-4, -12], [-3, -17], [-2, -13], [3, -19], [6, -12]][i], name));
   head(tUnit + 0.6, N('e5') - 0.3, 'One sealed module. Replaced as a unit.', low);
   stat(F('e5b', 0.3), N('e5b') - 0.4, 76, 42, '$249', 'iPhone 17 Pro camera assembly · Apple Self Service Repair');
-  head(F('e5c', 0.3), N('e5c') - 1.8, '“Skip the upgrade.”', { ...low, sub: 'iFixit, if the aperture is your only reason' });
+  head(F('e5c', 0.3), N('e5c') - 1.8, 'Variable aperture. One replaceable module.', low);
   // the verdict
-  stat(S('v1') + 3.2, N('v2') - 0.5, 24, 40, '7 / 10', 'Provisional repairability · iFixit', { of: 10, n: (t) => Math.floor(7 * ramp(t, S('v1') + 3.4, 1.8) + 0.01) });
-  label(F('v2', 0.08), N('v2') - 0.5, of(R.tray, 31, -30, -2.6), [14, 4], 'Screwed-in battery tray', 'Credit');
-  label(F('v2', 0.34), N('v2') - 0.5, of(R.tele, 7.7, 5, 0), [14, -4], 'Removable cameras', 'Credit');
-  label(F('v2', 0.6), N('v2') - 0.5, of(R.display, W / 2, -20, 4), [14, -8], 'Entry through the display', 'Costs it');
+  label(F('v2', 0.08), N('v2') - 0.5, of(R.tray, 31, -30, -2.6), [14, 4], 'Screwed-in battery tray', '');
+  label(F('v2', 0.34), N('v2') - 0.5, of(R.tele, 7.7, 5, 0), [14, -4], 'Removable cameras', '');
+  label(F('v2', 0.6), N('v2') - 0.5, of(R.display, W / 2, -20, 4), [14, -8], 'Entry through the display', 'Adhesive seal');
   head(F('v2b', 0.4), N('v2b') - 0.3, 'Parts are calibrated with Repair Assistant.', low);
-  head(S('v2c') + 0.6, N('v2c') - 0.6, 'Still open: parts pairing, and parts availability.', low);
+  head(S('v2c') + 0.6, N('v2c') - 0.6, 'Replacement part availability varies by model.', low);
   const tEnd = S('v3') + 6.2;
-  head(tEnd, DURATION - 0.4, TITLE, { cls: 'big', scrim: 0.55, kicker: 'Deep teardown', sub: 'Teardown findings: iFixit · Specifications: Apple · An independent model, not affiliated with Apple' });
+  head(tEnd, DURATION - 0.4, TITLE, { cls: 'big', scrim: 0.55, kicker: 'Deep teardown', sub: 'Specifications: Apple · An independent model, not affiliated with Apple' });
   cue(tEnd, 'impact', 0.8); cue(tJump, 'servo', 0.8); cue(tCollapse, 'servo'); cue(tCollapse + 3.0, 'click'); cue(tCollapse + 2.6, 'chime', 0.7);
 
   sfx.sort((a, b) => a.t - b.t);
