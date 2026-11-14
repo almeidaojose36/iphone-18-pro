@@ -16,6 +16,8 @@ import { build as shift } from './scenes/shift.js';
 import { build as photo } from './scenes/photodiodes.js';
 import { build as isp } from './scenes/isp.js';
 import { build as stack } from './scenes/stack.js';
+import { direction } from './direction.js';
+import { initUI, drawClip, drawCard, drawText, showLayer } from './ui.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -27,6 +29,7 @@ const manifest = await (await fetch('audio/manifest.json')).json();
 const chapters = manifest.chapters, TOTAL = manifest.duration, FADE = 0.7;
 
 const stageEl = $('stage'), overlay = $('overlay');
+await initUI();
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: RECORD });
 renderer.toneMapping = THREE.NeutralToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -92,9 +95,54 @@ function resolve(t) {
   return { sc, i, ch, lt, fade: 1 - clamp01(d / FADE) };
 }
 
+// ---- the edit: inserts, automatic camera cuts, typography (see src/direction.js) ----
+const allCues = Object.fromEntries(chapters.map((ch) => [ch.id, ch.cues]));
+const VARIANT = [[1, 0, 0], [0.76, 0.3, 0.05], [0.9, -0.36, 0.08], [0.68, -0.14, -0.03]], ORDER = [0, 1, 2, 0, 3, 1, 0, 2];
+const plans = chapters.map((ch) => {
+  const d = direction[ch.id](ch.cues, ch.duration, allCues);
+  const ins = [...d.ins];
+  if (d.road !== undefined) ins.push({ t: 0, d: 3.7, card: 'road', idx: d.road });
+  ins.sort((a, b) => a.t - b.t);
+  const marks = [...new Set([0, ch.duration, ...Object.values(ch.cues), ...ins.flatMap((k) => [k.t, Math.min(ch.duration, k.t + k.d)])])].sort((a, b) => a - b);
+  const cuts = []; let k = 0;
+  for (let j = 0; j < marks.length - 1; j++) {
+    const a = marks[j], b = marks[j + 1];
+    if (b - a < 0.05 || ins.some((s) => a >= s.t - 1e-3 && a < s.t + s.d - 1e-3)) continue;
+    const n = Math.max(1, Math.round((b - a) / d.every));
+    for (let q = 0; q < n; q++) cuts.push({ t: a + q * (b - a) / n, e: a + (q + 1) * (b - a) / n, v: ORDER[k++ % ORDER.length] });
+  }
+  return { ins, text: d.text, cuts, soft: d.soft };
+});
+const _off = new THREE.Vector3(), _ax = new THREE.Vector3(), UPY = new THREE.Vector3(0, 1, 0);
+function cutCamera(cam, cut, lt, soft) {
+  const look = cam.userData.look;
+  let [dist, yaw, pitch] = VARIANT[cut.v];
+  if (soft) { dist = 0.9 + 0.1 * dist; yaw *= 0.5; pitch = 0; }
+  if (!look || cut.v === 0) return;
+  _off.copy(cam.position).sub(look);
+  _ax.crossVectors(_off, UPY).normalize();
+  _off.applyAxisAngle(UPY, yaw).applyAxisAngle(_ax, pitch).multiplyScalar(dist * (1 - 0.06 * clamp01((lt - cut.t) / (cut.e - cut.t))));
+  cam.position.copy(look).add(_off); cam.lookAt(look);
+}
+
 const v = new THREE.Vector3();
 function draw() {
-  const { sc, i, ch, lt, fade } = resolve(T);
+  const i0 = chapterAt(T), plan = plans[i0], lt0 = T - chapters[i0].start;
+  const ins = plan.ins.find((k) => lt0 >= k.t && lt0 < k.t + k.d);
+  drawText(plan.text, lt0);
+  if (ins && !ins.peek) {
+    showLayer(ins.clip ? 'clip' : 'card');
+    if (ins.clip) drawClip(ins, lt0 - ins.t); else drawCard(ins, lt0 - ins.t, chapters[i0]);
+    if (active) for (const l of active.labels) l.el.style.opacity = 0;
+    const d0 = Math.min(lt0, chapters[i0].duration - lt0);
+    $('fade').style.opacity = 1 - clamp01(d0 / FADE);
+    tail(i0, chapters[i0], lt0);
+    return;
+  }
+  showLayer(null);
+  let { sc, i, ch, lt, fade } = resolve(T);
+  if (ins) { sc = S[ins.peek]; sc.update(ins.at + lt - ins.t, allCues[ins.peek], 1e3); fade = 1 - clamp01(Math.min(lt, ch.duration - lt) / FADE); }
+  else { const cut = plan.cuts.findLast((k) => lt >= k.t); if (cut) cutCamera(sc.camera, cut, lt, plan.soft); }
   if (active !== sc) { if (active) for (const l of active.labels) l.el.style.opacity = 0; active = sc; }
   const w = stageEl.clientWidth, h = stageEl.clientHeight;
   sc.camera.aspect = 16 / 9; sc.camera.updateProjectionMatrix(); sc.camera.updateMatrixWorld();
@@ -108,11 +156,9 @@ function draw() {
     l.el.style.transform = `translate(${(v.x * 0.5 + 0.5) * w}px, ${(-v.y * 0.5 + 0.5) * h}px) translate(-50%, -50%)`;
   }
   $('fade').style.opacity = fade;
-  // lower third
-  const tEl = $('title');
-  if (lastCh !== i) { tEl.querySelector('small').textContent = ch.label; tEl.querySelector('b').textContent = ch.title; lastCh = i; }
-  tEl.style.opacity = lt > 0.5 && lt < 5.5 ? 1 : 0;
-  if (RECORD) tEl.style.transition = 'none';
+  tail(i, ch, lt);
+}
+function tail(i, ch, lt) {
   // captions
   const cap = ch.captions.find((k) => lt >= k.start - 0.05 && lt <= k.end + 0.25);
   const cc = $('cc');

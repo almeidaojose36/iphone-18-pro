@@ -8,3 +8,8 @@ Both files are CC0 (public domain); no attribution is required, but here is wher
 | `night-street.jpg` | The photograph the ISP, stacking and outro scenes resolve into | "Backplate – Vignaioli Night" (DSC07552, edited) by Greg Zaal and Rico Cilliers, Poly Haven, via Wikimedia Commons — https://commons.wikimedia.org/wiki/File:Backplate_–_Vignaioli_Night_(Greg_Zaal_and_Rico_Cilliers_via_Poly_Haven)_DSC07552_(edited).jpg |
 
 Brushed metal, PCB, silicon wafer and sensor textures are generated procedurally in `src/util.js` and the scene files.
+
+## Added for the version 2 edit
+- `fonts/` — Barlow Condensed, Manrope, JetBrains Mono (SIL Open Font License), via Fontsource.
+- `clips/` — short frame sequences cut from Apple's iPhone 18 Pro film (the `.mp4` files at the repo root). © Apple.
+- `../audio/music`, `../audio/sfx` — generated with ElevenLabs for this video.

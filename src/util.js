@@ -16,7 +16,7 @@ export const hash = (n, m = 0) => {
 export const mod = (a, n) => ((a % n) + n) % n;
 
 export const COL = {
-  bg: 0x05070b, gold: 0xffc65a, cyan: 0x4fe3ff, copper: 0xd98a4a, glass: 0x9fd4ff,
+  bg: 0x05070b, gold: 0xffc65a, cyan: 0xe6c27a, copper: 0xd98a4a, glass: 0x9fd4ff,
   metal: 0x2a2f38, dark: 0x12151b, red: 0xff4d4d, green: 0x49e06a, blue: 0x4d7dff, white: 0xffffff,
 };
 
@@ -31,7 +31,7 @@ export function baseScene() {
   key.position.set(4, 8, 6);
   scene.add(key);
   // rim lights from behind so metal and glass edges catch a highlight
-  const rim = new THREE.DirectionalLight(0x7fe9ff, 2.2);
+  const rim = new THREE.DirectionalLight(0xcfdcec, 1.8);
   rim.position.set(-6, 3, -5);
   scene.add(rim);
   const rim2 = new THREE.DirectionalLight(0xffd9a8, 1.6);
@@ -56,6 +56,7 @@ export function camPath(cam, keys, t) {
   cam.position.copy(_a);
   _a.fromArray(k0.l).lerp(_b.fromArray(k1.l), u);
   cam.lookAt(_a);
+  (cam.userData.look || (cam.userData.look = new THREE.Vector3())).copy(_a);
 }
 
 let _glowTex;

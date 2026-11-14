@@ -6,97 +6,137 @@
   {
    "id": "hook",
    "label": "Hook",
-   "title": "The Physics Problem",
+   "title": "The Impossible Camera",
    "file": "audio/hook.mp3",
    "start": 0.0,
-   "duration": 53.67,
-   "audio": 51.67,
+   "duration": 64.028,
+   "audio": 58.828,
    "cues": {
     "start": 0.6,
-    "phone": 10.503,
-    "impossible": 15.438,
-    "ray": 28.418
+    "phone": 12.245,
+    "sensor": 17.167,
+    "impossible": 20.128,
+    "dark": 26.467,
+    "yet": 30.519,
+    "how": 34.745,
+    "ray": 36.08,
+    "twist": 50.732
    },
    "captions": [
     {
      "start": 0.6,
-     "end": 3.259,
-     "text": "This is a professional telephoto lens."
+     "end": 2.527,
+     "text": "This lens weighs more than a kilogram,"
     },
     {
-     "start": 3.433,
-     "end": 7.287,
-     "text": "It's long, it's heavy, and it's packed with thick glass,"
+     "start": 2.562,
+     "end": 5.186,
+     "text": "and it costs more than the phone lying next to it."
     },
     {
-     "start": 7.415,
-     "end": 10.364,
-     "text": "because that's what the laws of optics demand."
+     "start": 5.465,
+     "end": 8.727,
+     "text": "It's as long as your forearm, and it's packed with thick glass,"
     },
     {
-     "start": 10.503,
-     "end": 12.198,
-     "text": "And this is a phone."
+     "start": 8.785,
+     "end": 11.92,
+     "text": "because that's what the laws of optics demand if you want to zoom."
     },
     {
-     "start": 12.477,
-     "end": 14.938,
-     "text": "It's less than nine millimetres thick."
+     "start": 12.245,
+     "end": 14.648,
+     "text": "Your phone is expected to do the same job,"
     },
     {
-     "start": 15.438,
-     "end": 17.865,
-     "text": "By the rules that shaped that big lens,"
+     "start": 14.775,
+     "end": 17.109,
+     "text": "from a body less than nine millimetres thick,"
     },
     {
-     "start": 17.946,
-     "end": 23.066,
-     "text": "a camera this thin shouldn't be able to zoom, shouldn't hold steady in your hand,"
+     "start": 17.167,
+     "end": 19.524,
+     "text": "with a sensor about the size of your fingernail."
     },
     {
-     "start": 23.205,
-     "end": 25.713,
-     "text": "and definitely shouldn't see in the dark."
+     "start": 20.128,
+     "end": 23.088,
+     "text": "By the rules that built that lens, this shouldn't work."
     },
     {
-     "start": 25.991,
-     "end": 28.046,
-     "text": "And yet it does all three."
+     "start": 23.297,
+     "end": 24.377,
+     "text": "It shouldn't zoom."
     },
     {
-     "start": 28.418,
-     "end": 31.773,
-     "text": "So today, we're going to follow a single ray of light."
+     "start": 24.551,
+     "end": 26.316,
+     "text": "It shouldn't hold steady in your hand."
     },
     {
-     "start": 32.005,
-     "end": 35.894,
-     "text": "It leaves a streetlamp, slips through a sapphire window,"
+     "start": 26.467,
+     "end": 28.394,
+     "text": "And at night, it should give you this."
     },
     {
-     "start": 36.069,
-     "end": 39.842,
-     "text": "gets folded around corners inside a block of glass,"
+     "start": 28.603,
+     "end": 30.345,
+     "text": "A dark, grainy mess."
     },
     {
-     "start": 40.12,
-     "end": 43.754,
-     "text": "lands on a chip of silicon that floats on magnets,"
+     "start": 30.519,
+     "end": 32.005,
+     "text": "And yet, you get this."
     },
     {
-     "start": 43.789,
-     "end": 46.936,
-     "text": "and comes out the other side as a finished photo."
+     "start": 32.284,
+     "end": 33.003,
+     "text": "Handheld."
     },
     {
-     "start": 47.377,
-     "end": 50.094,
-     "text": "The whole trip takes a fraction of a second."
+     "start": 33.387,
+     "end": 34.234,
+     "text": "No flash."
     },
     {
-     "start": 50.465,
-     "end": 52.241,
-     "text": "Let's slow it down."
+     "start": 34.745,
+     "end": 35.755,
+     "text": "So, how?"
+    },
+    {
+     "start": 36.08,
+     "end": 40.178,
+     "text": "To find out, we're going to follow a single ray of light, all the way through."
+    },
+    {
+     "start": 40.62,
+     "end": 43.801,
+     "text": "Into a block of glass that folds it around four corners."
+    },
+    {
+     "start": 44.045,
+     "end": 46.993,
+     "text": "Onto a chip of silicon that floats on magnets."
+    },
+    {
+     "start": 47.202,
+     "end": 50.453,
+     "text": "Down into wells a thousandth of a millimetre wide."
+    },
+    {
+     "start": 50.732,
+     "end": 53.994,
+     "text": "And then, into the part almost nobody talks about."
+    },
+    {
+     "start": 54.273,
+     "end": 57.442,
+     "text": "Because the photo you end up with was never really taken."
+    },
+    {
+     "start": 57.767,
+     "end": 59.393,
+     "text": "It was calculated."
     }
    ]
   },
@@ -105,7 +145,7 @@
    "label": "Chapter 1",
    "title": "Folding Light Around a Corner",
    "file": "audio/prism.mp3",
-   "start": 53.67,
+   "start": 64.028,
    "duration": 119.107,
    "audio": 117.107,
    "cues": {
@@ -302,7 +342,7 @@
    "label": "Chapter 2",
    "title": "The Floating Sensor",
    "file": "audio/shift.mp3",
-   "start": 172.777,
+   "start": 183.135,
    "duration": 123.104,
    "audio": 121.104,
    "cues": {
@@ -485,7 +525,7 @@
    "label": "Chapter 3",
    "title": "Catching Photons in Silicon Buckets",
    "file": "audio/photo.mp3",
-   "start": 295.881,
+   "start": 306.238,
    "duration": 135.46,
    "audio": 133.46,
    "cues": {
@@ -706,7 +746,7 @@
    "label": "Chapter 4",
    "title": "Why the Raw Image Looks Terrible",
    "file": "audio/isp.mp3",
-   "start": 431.34,
+   "start": 441.698,
    "duration": 137.236,
    "audio": 135.236,
    "cues": {
@@ -926,7 +966,7 @@
    "label": "Chapter 5",
    "title": "How Silicon Cheats Darkness",
    "file": "audio/stack.mp3",
-   "start": 568.576,
+   "start": 578.934,
    "duration": 126.787,
    "audio": 124.787,
    "cues": {
@@ -1090,98 +1130,130 @@
    "label": "Outro",
    "title": "One Tap, Billions of Operations",
    "file": "audio/outro.mp3",
-   "start": 695.363,
-   "duration": 49.491,
-   "audio": 47.491,
+   "start": 705.721,
+   "duration": 65.607,
+   "audio": 56.007,
    "cues": {
     "pull": 0.6,
-    "prism": 8.483,
-    "phone": 15.624,
-    "ask": 34.756
+    "prism": 7.949,
+    "phone": 14.59,
+    "lens": 30.878,
+    "made": 36.219,
+    "ask": 44.845
    },
    "captions": [
     {
      "start": 0.6,
-     "end": 1.726,
+     "end": 1.575,
      "text": "So pull back."
     },
     {
-     "start": 2.098,
-     "end": 6.045,
+     "start": 2.016,
+     "end": 5.662,
      "text": "Out of the silicon wells, where photons became electrons."
     },
     {
-     "start": 6.486,
-     "end": 8.251,
+     "start": 6.045,
+     "end": 7.624,
      "text": "Up through the colour filters."
     },
     {
-     "start": 8.483,
-     "end": 12.64,
+     "start": 7.949,
+     "end": 11.711,
      "text": "Back through the glass that folded a telephoto lens into a sliver,"
     },
     {
-     "start": 12.814,
-     "end": 15.31,
+     "start": 11.862,
+     "end": 14.148,
      "text": "past the sensor floating on its magnets."
     },
     {
-     "start": 15.624,
-     "end": 19.223,
+     "start": 14.59,
+     "end": 17.724,
      "text": "Out through the sapphire, and back to the thing in your hand."
     },
     {
-     "start": 19.664,
-     "end": 20.523,
+     "start": 18.049,
+     "end": 18.804,
      "text": "One tap."
     },
     {
-     "start": 20.802,
-     "end": 26.421,
-     "text": "A beam folded four times, a sensor steadied thousands of times a second,"
+     "start": 19.083,
+     "end": 20.882,
+     "text": "A beam folded four times."
     },
     {
-     "start": 26.549,
-     "end": 31.68,
-     "text": "tens of millions of buckets counted, and billions of calculations,"
+     "start": 21.056,
+     "end": 23.622,
+     "text": "A sensor steadied thousands of times a second."
     },
     {
-     "start": 31.877,
-     "end": 34.524,
-     "text": "all in about the time it takes you to blink."
+     "start": 24.005,
+     "end": 26.13,
+     "text": "Tens of millions of buckets counted."
     },
     {
-     "start": 34.756,
-     "end": 36.312,
+     "start": 26.374,
+     "end": 30.553,
+     "text": "And billions of calculations, all in about the time it takes you to blink."
+    },
+    {
+     "start": 30.878,
+     "end": 33.548,
+     "text": "That big lens still wins on raw light."
+    },
+    {
+     "start": 33.792,
+     "end": 36.01,
+     "text": "Nothing this thin can match that much glass."
+    },
+    {
+     "start": 36.219,
+     "end": 39.156,
+     "text": "But the phone found a second answer to the same problem."
+    },
+    {
+     "start": 39.481,
+     "end": 41.722,
+     "text": "The lens beats the dark with size."
+    },
+    {
+     "start": 41.931,
+     "end": 44.601,
+     "text": "The phone beats it with speed, and mathematics."
+    },
+    {
+     "start": 44.845,
+     "end": 46.099,
      "text": "That's one camera."
     },
     {
-     "start": 36.417,
-     "end": 39.656,
+     "start": 46.308,
+     "end": 48.781,
      "text": "There's a lot more hardware hiding in plain sight."
     },
     {
-     "start": 39.888,
-     "end": 41.572,
+     "start": 49.059,
+     "end": 50.546,
      "text": "So tell me in the comments:"
     },
     {
-     "start": 41.804,
-     "end": 43.789,
+     "start": 50.72,
+     "end": 52.333,
      "text": "what should we take apart next?"
     },
     {
-     "start": 43.986,
-     "end": 45.728,
+     "start": 52.844,
+     "end": 54.516,
      "text": "This is Deep Teardown."
     },
     {
-     "start": 45.902,
-     "end": 48.062,
+     "start": 54.69,
+     "end": 56.559,
      "text": "I'll see you inside the next one."
     }
    ]
   }
  ],
- "duration": 744.854
+ "duration": 771.327
 }

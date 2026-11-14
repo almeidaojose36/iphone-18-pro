@@ -69,3 +69,16 @@ sapphire windows and microlenses are `MeshPhysicalMaterial` glass (transmission,
 iridescence); a low-strength `UnrealBloomPass` gives beams and bounce points their glow. The helpers
 (`physGlass`, `lensGeo`, `brushedMetal`, `woundCoil`, `flexureGeo`, …) live in `src/util.js`.
 Asset sources are listed in [`assets/CREDITS.md`](assets/CREDITS.md).
+
+## Version 2 edit (reference-driven)
+
+Reworked after studying the reference film on `main`: a stakes-first cold open, short shots, bold on-screen
+headlines, real footage and a roadmap.
+
+- `src/direction.js` — the edit. Per chapter: inserts (real iPhone 18 Pro footage from `assets/clips/`, 2D cards,
+  peeks into other scenes), headlines and tags, and how often the 3D camera cuts. Times are relative to narration cues.
+- `src/ui.js` — the cards (sensor size, noisy/clean photo simulation, frame merge, roadmap, title, sources) and typography.
+- `tools/mix_audio.py` — mixes narration + `audio/music/*` + `audio/sfx/*` into `audio/mix.mp3`, which the renderer muxes.
+- Music and effects were generated with ElevenLabs; fonts are Barlow Condensed, Manrope and JetBrains Mono (OFL).
+- The clips in `assets/clips/` are cut from Apple's iPhone 18 Pro film supplied in this repo; check you are happy
+  with that use before publishing.

@@ -54,7 +54,7 @@ if (shots) {
   console.log(`wrote ${shots.split(',').length} stills to ${dir}`);
 } else {
   const from = +arg('from', 0), to = Math.min(total, +arg('to', total));
-  const audio = path.join(ROOT, 'audio/voiceover_full.mp3');
+  const audio = path.join(ROOT, 'audio/mix.mp3');
   const ff = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',
     ...(fs.existsSync(audio) && !process.argv.includes('--noaudio') ? ['-ss', String(from), '-t', String(to - from), '-i', audio] : []),
     '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', arg('crf', '18'), '-preset', 'medium', '-c:a', 'aac', '-b:a', '192k', '-shortest', out],

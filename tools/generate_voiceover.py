@@ -123,7 +123,7 @@ def main():
         starts, ends = al["character_start_times_seconds"], al["character_end_times_seconds"]
         assert len(starts) == len(text), f"{ch['id']}: alignment length mismatch"
         dur = duration(mp3)
-        total = lead + dur + tail
+        total = lead + dur + ch.get('tail', tail)
         cue_t = {k: round(lead + starts[min(v, len(starts) - 1)], 3) for k, v in cues.items()}
         caps = captions(text, starts, ends)
         for cp in caps:
@@ -154,7 +154,7 @@ def main():
         ins, filt = [], []
         for i, ch in enumerate(manifest["chapters"]):
             ins += ["-i", str(ROOT / ch["file"])]
-            filt.append(f"[{i}:a]adelay={int(lead * 1000)}:all=1,apad=pad_dur={tail}[a{i}]")
+            filt.append(f"[{i}:a]adelay={int(lead * 1000)}:all=1,apad=pad_dur={chapters[i].get('tail', tail)}[a{i}]")
         graph = ";".join(filt) + ";" + "".join(f"[a{i}]" for i in range(len(chapters))) + \
             f"concat=n={len(chapters)}:v=0:a=1[out]"
         subprocess.run(["ffmpeg", "-y", "-v", "error", *ins, "-filter_complex", graph, "-map", "[out]",
