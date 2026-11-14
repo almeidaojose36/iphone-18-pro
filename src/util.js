@@ -23,16 +23,21 @@ export const COL = {
 export function baseScene() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(COL.bg);
-  scene.add(new THREE.HemisphereLight(0xcfe2ff, 0x2a3040, 2.0));
-  const fillL = new THREE.DirectionalLight(0xffffff, 1.2);
+  scene.add(new THREE.HemisphereLight(0xcfe2ff, 0x2a3040, 0.55));
+  const fillL = new THREE.DirectionalLight(0xffffff, 0.7);
   fillL.position.set(-3, 2, 8);
   scene.add(fillL);
-  const key = new THREE.DirectionalLight(0xffffff, 3.0);
+  const key = new THREE.DirectionalLight(0xffffff, 2.6);
   key.position.set(4, 8, 6);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0x4fe3ff, 1.1);
+  // rim lights from behind so metal and glass edges catch a highlight
+  const rim = new THREE.DirectionalLight(0x7fe9ff, 2.2);
   rim.position.set(-6, 3, -5);
   scene.add(rim);
+  const rim2 = new THREE.DirectionalLight(0xffd9a8, 1.6);
+  rim2.position.set(7, -2, -6);
+  scene.add(rim2);
+  scene.userData.lights = { fillL, key, rim, rim2 };
   return scene;
 }
 
@@ -96,9 +101,10 @@ export class Beam {
     this.points = points.map((p) => p.clone());
     this.lengths = [];
     this.total = 0;
-    const core = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const core = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, depthWrite: false });
+    core.color.setScalar(1.8);   // HDR white: picked up by the bloom pass
     this.haloMat = new THREE.MeshBasicMaterial({
-      color, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false,
+      color, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false,
     });
     const geo = new THREE.CylinderGeometry(1, 1, 1, 12, 1, true);
     this.segs = [];
@@ -172,16 +178,169 @@ export function roundedSlab(w, h, d, r) {
   return g;
 }
 
-/** Set opacity on every material under an object (materials must be transparent-capable). */
+/** Rounded rectangle plane with 0-1 UVs. */
+export function roundedPlane(w, h, r) {
+  const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
+  s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r);
+  s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r);
+  s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y);
+  const g = new THREE.ShapeGeometry(s, 8), p = g.attributes.position, uv = g.attributes.uv;
+  for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / w + 0.5, p.getY(i) / h + 0.5);
+  return g;
+}
+
+/** Set opacity on every material under an object; materials go back to opaque once fully faded in. */
 export function setOpacity(obj, o) {
   obj.visible = o > 0.003;
   obj.traverse((m) => {
     if (!m.material) return;
     const mats = Array.isArray(m.material) ? m.material : [m.material];
     for (const mat of mats) {
-      if (mat.userData.baseOpacity === undefined) mat.userData.baseOpacity = mat.opacity;
-      mat.transparent = true;
+      if (mat.userData.baseOpacity === undefined) { mat.userData.baseOpacity = mat.opacity; mat.userData.baseTransparent = mat.transparent; }
+      mat.transparent = mat.userData.baseTransparent || o < 0.999;
       mat.opacity = mat.userData.baseOpacity * o;
+    }
+  });
+}
+
+// ---------- physically based materials and detailed geometry ----------
+
+/** Optical glass: transmissive, ior 1.52, with a thin-film (anti-reflective coating) sheen. */
+export function physGlass(o = {}) {
+  return new THREE.MeshPhysicalMaterial({
+    color: o.color ?? 0xffffff, transmission: o.transmission ?? 1, ior: o.ior ?? 1.52, thickness: o.thickness ?? 0.08,
+    roughness: o.roughness ?? 0.03, metalness: 0, specularIntensity: 1, envMapIntensity: o.env ?? 1.8,
+    iridescence: o.iridescence ?? 0.4, iridescenceIOR: 1.38, iridescenceThicknessRange: [120, 420],
+    attenuationColor: new THREE.Color(o.tint ?? 0xcfeaff), attenuationDistance: o.attDist ?? 5,
+    emissive: o.emissive ?? 0x000000, emissiveIntensity: o.emissiveIntensity ?? 0,
+    side: o.side ?? THREE.DoubleSide, depthWrite: false, transparent: true, opacity: o.opacity ?? 1,
+  });
+}
+
+/**
+ * Lens element as a solid of revolution about Y. r = semi-diameter, tc = centre thickness,
+ * s1 / s2 = sag of the top / bottom surface at the rim (positive = that surface bulges outward).
+ * Biconvex: s1 > 0, s2 > 0. Meniscus: opposite signs. Biconcave: both negative.
+ */
+export function lensGeo(r, tc, s1, s2, seg = 56) {
+  const pts = [], n = 14;
+  for (let i = 0; i <= n; i++) { const h = (i / n) * r; pts.push(new THREE.Vector2(h, tc / 2 - s1 * (h / r) ** 2)); }
+  pts.push(new THREE.Vector2(r * 1.04, tc / 2 - s1), new THREE.Vector2(r * 1.04, -tc / 2 + s2));
+  for (let i = n; i >= 0; i--) { const h = (i / n) * r; pts.push(new THREE.Vector2(h, -tc / 2 + s2 * (h / r) ** 2)); }
+  const g = new THREE.LatheGeometry(pts, seg);
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Ring / tube of revolution about Y from a closed [radius, y] profile; optional cut-away. */
+export function latheRing(profile, seg = 96, phiStart = 0, phiLen = Math.PI * 2) {
+  const pts = profile.map(([r, y]) => new THREE.Vector2(r, y));
+  pts.push(pts[0].clone());
+  const g = new THREE.LatheGeometry(pts, seg, phiStart, phiLen);
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Ribbed (knurled rubber) ring about Y: ridges run along the axis. */
+export function ribbedRing(r, len, ribs = 90, depth = 0.012, phiStart = 0, phiLen = Math.PI * 2) {
+  const seg = Math.max(8, Math.round(ribs * 4 * phiLen / (Math.PI * 2)));
+  const g = new THREE.CylinderGeometry(r, r, len, seg, 1, true, phiStart, phiLen);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), z = p.getZ(i), a = Math.atan2(x, z);
+    const k = 1 + (depth / r) * (Math.cos(a * ribs) > 0.1 ? 1 : 0);
+    p.setX(i, x * k); p.setZ(i, z * k);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
+let _brushed;
+/** Fine directional streaks, for roughness + bump on machined metal. */
+export function brushedTexture() {
+  if (_brushed) return _brushed;
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  const g = c.getContext('2d');
+  g.fillStyle = '#808080'; g.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 5200; i++) {
+    const y = hash(i, 1) * 512, x = hash(i, 2) * 512, len = 40 + hash(i, 3) * 360, v = hash(i, 4) > 0.5 ? 255 : 0;
+    g.fillStyle = `rgba(${v},${v},${v},${0.03 + hash(i, 5) * 0.09})`;
+    g.fillRect(x, y, len, 1); g.fillRect(x - 512, y, len, 1);
+  }
+  _brushed = new THREE.CanvasTexture(c);
+  _brushed.wrapS = _brushed.wrapT = THREE.RepeatWrapping; _brushed.anisotropy = 8;
+  return _brushed;
+}
+
+/** Brushed titanium / aluminium. */
+export function brushedMetal(color = 0x8d8f94, o = {}) {
+  const t = brushedTexture();
+  return new THREE.MeshPhysicalMaterial({
+    color, metalness: 1, roughness: o.roughness ?? 0.42, roughnessMap: t, bumpMap: t, bumpScale: o.bump ?? 0.6,
+    envMapIntensity: o.env ?? 1.0, clearcoat: o.clearcoat ?? 0, side: o.side ?? THREE.FrontSide,
+  });
+}
+
+export function copperMat() {
+  return new THREE.MeshPhysicalMaterial({ color: 0xd07a3a, metalness: 1, roughness: 0.32, clearcoat: 0.7, clearcoatRoughness: 0.25,
+    envMapIntensity: 1.6, emissive: 0xff7a20, emissiveIntensity: 0 });
+}
+
+/** A flat wound coil (racetrack spiral of enamelled wire), lying in XY, stacked in Z. */
+export function woundCoil(w, h, mat, o = {}) {
+  const turns = o.turns ?? 7, pitch = o.pitch ?? 0.026, wire = o.wire ?? 0.024, layers = o.layers ?? 3, e = o.square ?? 0.35;
+  const pts = [], S = 48;
+  for (let s = 0; s <= turns * S; s++) {
+    const th = (s / S) * Math.PI * 2, ins = pitch * s / S, a = w / 2 - ins, b = h / 2 - ins, c = Math.cos(th), d = Math.sin(th);
+    pts.push(new THREE.Vector3(a * Math.sign(c) * Math.abs(c) ** e, b * Math.sign(d) * Math.abs(d) ** e, 0));
+  }
+  const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), turns * S, wire / 2, 5, false);
+  const grp = new THREE.Group();
+  for (let l = 0; l < layers; l++) { const m = new THREE.Mesh(geo, mat); m.position.z = (l - (layers - 1) / 2) * wire * 0.92; grp.add(m); }
+  return grp;
+}
+
+/** Unit-length (along Y, centred) serpentine flexure ribbon; stretch with span(). */
+export function flexureGeo(bends = 5, amp = 0.09, thick = 0.014, tall = 0.1) {
+  const pts = [new THREE.Vector3(0, -0.5, 0), new THREE.Vector3(0, -0.44, 0)];
+  for (let i = 0; i < bends; i++) pts.push(new THREE.Vector3((i % 2 ? -1 : 1) * amp, -0.36 + (0.72 * (i + 0.5)) / bends, 0));
+  pts.push(new THREE.Vector3(0, 0.44, 0), new THREE.Vector3(0, 0.5, 0));
+  const g = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.25), 90, thick, 6, false);
+  g.scale(1, 1, tall / (2 * thick));
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Canvas texture helper. draw(ctx, size). */
+export function canvasTex(size, draw, srgb = true) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  draw(c.getContext('2d'), size);
+  const t = new THREE.CanvasTexture(c);
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+  return t;
+}
+
+/** Green PCB with gold traces and pads. */
+export function pcbTexture(seed = 1) {
+  return canvasTex(512, (g, S) => {
+    g.fillStyle = '#0d3a22'; g.fillRect(0, 0, S, S);
+    g.strokeStyle = '#1c6a3c'; g.lineWidth = 3;
+    for (let i = 0; i < 46; i++) {
+      let x = hash(i, seed) * S, y = hash(i, seed + 1) * S;
+      g.beginPath(); g.moveTo(x, y);
+      for (let k = 0; k < 4; k++) { const d = 20 + hash(i, k + seed + 2) * 90; if (k % 2) y += (hash(i, k + 9) > 0.5 ? d : -d); else x += (hash(k, i + 5) > 0.5 ? d : -d); g.lineTo(x, y); }
+      g.stroke();
+    }
+    g.strokeStyle = '#c9a24a'; g.lineWidth = 2;
+    for (let i = 0; i < 26; i++) {
+      let x = hash(i, seed + 20) * S, y = hash(i, seed + 21) * S;
+      g.beginPath(); g.moveTo(x, y);
+      for (let k = 0; k < 3; k++) { const d = 30 + hash(i, k + seed + 30) * 110; if (k % 2) x += d; else y += (hash(i, k) > 0.5 ? d : -d); g.lineTo(x, y); }
+      g.stroke();
+      g.fillStyle = '#e2c15e'; g.beginPath(); g.arc(x, y, 5, 0, 7); g.fill();
+      g.fillStyle = '#0d3a22'; g.beginPath(); g.arc(x, y, 2, 0, 7); g.fill();
     }
   });
 }

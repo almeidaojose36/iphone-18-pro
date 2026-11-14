@@ -1,53 +1,71 @@
 // Chapter 3: photodiodes, colour filters, microlenses and the "buckets in the rain" analogy.
-import { THREE, COL, baseScene, makeCamera, camPath, ramp, win, lerp, clamp01, hash, label, glassMat, edges } from '../util.js';
+import { THREE, COL, baseScene, makeCamera, camPath, ramp, win, lerp, clamp01, hash, label, edges, physGlass, roundedSlab, canvasTex } from '../util.js';
 
 const N = 8, DEPTH = 1.2, M = 520, TOP = 10;
 const fcol = (x, z) => (x % 2 === 0 && z % 2 === 0 ? 0 : x % 2 === 1 && z % 2 === 1 ? 2 : 1);   // RGGB
 const RGB = [new THREE.Color(0xff4a4a), new THREE.Color(0x4be36c), new THREE.Color(0x4f86ff)];
+const JEWEL = [new THREE.Color(0xff1626), new THREE.Color(0x0fd044), new THREE.Color(0x1846ff)];
 const P = (i) => i - (N - 1) / 2;
 
 export function build() {
   const scene = baseScene(), camera = makeCamera(40);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), sc = new THREE.Vector3(), ps = new THREE.Vector3(), col = new THREE.Color();
 
-  // the rest of the sensor: a huge field of the same cells
-  const cv = document.createElement('canvas'); cv.width = cv.height = 64;
-  const g = cv.getContext('2d');
-  g.fillStyle = '#0a0d14'; g.fillRect(0, 0, 64, 64);
-  g.fillStyle = '#1c2636'; g.fillRect(5, 5, 54, 54);
-  const tex = new THREE.CanvasTexture(cv);
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.anisotropy = 8;
-  tex.colorSpace = THREE.SRGBColorSpace;
+  // the rest of the sensor: silicon wafer with a cell grid and metal micro-traces (tile = 2 × 2 cells)
+  const tex = canvasTex(256, (g, S) => {
+    g.fillStyle = '#0b0f1a'; g.fillRect(0, 0, S, S);
+    for (let cy = 0; cy < 2; cy++) for (let cx = 0; cx < 2; cx++) {
+      const x = cx * 128, y = cy * 128, gr = g.createRadialGradient(x + 64, y + 64, 6, x + 64, y + 64, 70);
+      gr.addColorStop(0, '#2a3a5c'); gr.addColorStop(1, '#141c2e');
+      g.fillStyle = gr; g.fillRect(x + 9, y + 9, 110, 110);
+      g.fillStyle = '#c59a45'; g.fillRect(x + 12, y + 12, 16, 16);          // transfer gate contact
+      g.fillStyle = '#0b0f1a'; g.fillRect(x + 16, y + 16, 8, 8);
+    }
+    g.fillStyle = '#b98f3e';                                                  // row / column metal lines
+    for (const k of [0, 128]) { g.fillRect(0, k + 2, S, 2); g.fillRect(k + 2, 0, 2, S); }
+    g.fillStyle = '#8fa3c4';
+    for (const k of [0, 128]) { g.fillRect(0, k + 124, S, 1.5); g.fillRect(k + 124, 0, 1.5, S); }
+    g.fillStyle = '#e0bd62';
+    for (let i = 0; i < 8; i++) { g.beginPath(); g.arc(3 + (i % 2) * 128, 20 + i * 30, 2.5, 0, 7); g.fill(); }
+  });
+  tex.repeat.set(0.5, 0.5);
   const fs = new THREE.Shape([[-300, -300], [300, -300], [300, 300], [-300, 300]].map(([x, y]) => new THREE.Vector2(x, y)));
   const hole = N / 2 + 0.05;
   fs.holes.push(new THREE.Path([[-hole, -hole], [-hole, hole], [hole, hole], [hole, -hole]].map(([x, y]) => new THREE.Vector2(x, y))));
-  const field = new THREE.Mesh(new THREE.ShapeGeometry(fs), new THREE.MeshStandardMaterial({ map: tex, metalness: 0.1, roughness: 0.85 }));
+  const field = new THREE.Mesh(new THREE.ShapeGeometry(fs),
+    new THREE.MeshPhysicalMaterial({ map: tex, metalness: 0.8, roughness: 0.5, iridescence: 0.45, iridescenceIOR: 1.7, envMapIntensity: 0.45 }));
   field.rotation.x = -Math.PI / 2; field.position.y = -0.03;
   scene.add(field);
 
-  // silicon block with wells (walls = isolation trenches)
-  const wallMat = new THREE.MeshStandardMaterial({ color: 0x6a7c9c, metalness: 0.3, roughness: 0.5 });
+  // silicon block with wells (walls = isolation trenches), metal lines along the wall tops
+  const wallMat = new THREE.MeshPhysicalMaterial({ color: 0x46526e, metalness: 0.75, roughness: 0.32, iridescence: 0.7, iridescenceIOR: 1.7 });
   const walls = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), wallMat, (N + 1) * 2);
+  const traces = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xd9b25a, metalness: 1, roughness: 0.28 }), (N + 1) * 2);
   for (let i = 0; i <= N; i++) {
     m4.compose(ps.set(i - N / 2, -DEPTH / 2, 0), q, sc.set(0.1, DEPTH, N + 0.1)); walls.setMatrixAt(i * 2, m4);
     m4.compose(ps.set(0, -DEPTH / 2, i - N / 2), q, sc.set(N + 0.1, DEPTH, 0.1)); walls.setMatrixAt(i * 2 + 1, m4);
+    m4.compose(ps.set(i - N / 2, 0.004, 0), q, sc.set(0.03, 0.012, N + 0.1)); traces.setMatrixAt(i * 2, m4);
+    m4.compose(ps.set(0, 0.004, i - N / 2), q, sc.set(N + 0.1, 0.012, 0.03)); traces.setMatrixAt(i * 2 + 1, m4);
   }
-  const floor = new THREE.Mesh(new THREE.BoxGeometry(N + 0.1, 0.3, N + 0.1), new THREE.MeshStandardMaterial({ color: 0x0c1018, metalness: 0.4, roughness: 0.7 }));
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(N + 0.1, 0.3, N + 0.1), new THREE.MeshStandardMaterial({ color: 0x0c1018, metalness: 0.6, roughness: 0.5 }));
   floor.position.y = -DEPTH - 0.15;
-  scene.add(walls, floor);
+  scene.add(walls, traces, floor);
 
   // electrons collected in each well
-  const fills = new THREE.InstancedMesh(new THREE.BoxGeometry(0.86, 1, 0.86), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.9 }), N * N);
+  const fills = new THREE.InstancedMesh(new THREE.BoxGeometry(0.86, 1, 0.86), new THREE.MeshBasicMaterial(), N * N);
   fills.frustumCulled = false;
   scene.add(fills);
 
   // colour filters + microlenses
-  const filters = new THREE.InstancedMesh(new THREE.BoxGeometry(0.94, 0.2, 0.94),
-    new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.6, roughness: 0.3, depthWrite: false }), N * N);
-  const lenses = new THREE.InstancedMesh(new THREE.SphereGeometry(0.5, 24, 10, 0, Math.PI * 2, 0, Math.PI / 2), glassMat(0.3), N * N);
+  const fgeo = roundedSlab(0.9, 0.9, 0.16, 0.1); fgeo.rotateX(Math.PI / 2);
+  const filters = new THREE.InstancedMesh(fgeo, new THREE.MeshPhysicalMaterial({
+    transmission: 0.82, thickness: 0.5, ior: 1.6, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.2,
+    attenuationDistance: 0.6, transparent: true, opacity: 1, depthWrite: false }), N * N);
+  const lenses = new THREE.InstancedMesh(new THREE.SphereGeometry(0.5, 28, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+    physGlass({ thickness: 0.25, iridescence: 0.6, env: 2.4, side: THREE.FrontSide }), N * N);
   for (let x = 0; x < N; x++) for (let z = 0; z < N; z++) {
     const i = x * N + z;
-    filters.setColorAt(i, RGB[fcol(x, z)]);
+    filters.setColorAt(i, JEWEL[fcol(x, z)]);
     m4.compose(ps.set(P(x), 0, P(z)), q, sc.set(1, 1, 1)); filters.setMatrixAt(i, m4);
     m4.compose(ps.set(P(x), 0, P(z)), q, sc.set(0.96, 0.55, 0.96)); lenses.setMatrixAt(i, m4);
   }
@@ -123,8 +141,8 @@ export function build() {
 
   function layers(F, Lz) {
     state.F = F; state.Lz = Lz;
-    filters.position.y = 0.12 + (1 - F) * 5; filters.material.opacity = 0.42 * F; filters.visible = F > 0.01;
-    lenses.position.y = 0.24 + (1 - Lz) * 5; lenses.material.opacity = 0.22 * Lz; lenses.visible = Lz > 0.01;
+    filters.position.y = 0.13 + (1 - F) * 5; filters.material.opacity = F; filters.visible = F > 0.01;
+    lenses.position.y = 0.25 + (1 - Lz) * 5; lenses.material.opacity = Lz; lenses.visible = Lz > 0.01;
   }
 
   function update(t, c) {
@@ -178,5 +196,5 @@ export function build() {
     ], u);
   }
 
-  return { scene, camera, labels, update, outro };
+  return { scene, camera, labels, update, outro, envIntensity: 0.32 };
 }

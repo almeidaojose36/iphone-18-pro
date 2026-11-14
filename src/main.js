@@ -2,8 +2,14 @@
 //
 // URL options:  ?clean   hide the control bar (for screen recording)
 //               ?cc=0    hide captions          ?t=123.4  start at a time (seconds)
+//               ?fx=0    no bloom / post-processing (faster)
 //               ?record  no audio; frames are stepped from outside via window.renderAt(seconds)
 import { THREE, clamp01, ramp } from './util.js';
+import { EffectComposer } from '../vendor/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from '../vendor/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from '../vendor/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from '../vendor/addons/postprocessing/OutputPass.js';
+import { HDRLoader } from '../vendor/addons/loaders/HDRLoader.js';
 import { build as hook } from './scenes/hook.js';
 import { build as prism } from './scenes/prism.js';
 import { build as shift } from './scenes/shift.js';
@@ -22,9 +28,15 @@ const chapters = manifest.chapters, TOTAL = manifest.duration, FADE = 0.7;
 
 const stageEl = $('stage'), overlay = $('overlay');
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: RECORD });
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.0;
 stageEl.prepend(renderer.domElement);
+
+// studio reflections: a dark-studio HDRI (Poly Haven "Studio Small 08", CC0), prefiltered for PBR
+const hdr = await new HDRLoader().loadAsync('assets/studio_small_08_1k.hdr');
+hdr.mapping = THREE.EquirectangularReflectionMapping;
+const envMap = new THREE.PMREMGenerator(renderer).fromEquirectangular(hdr).texture;
+hdr.dispose();
 
 const S = { hook: hook(), prism: prism(), shift: shift(), photo: photo(), isp: isp(), stack: stack() };
 for (const sc of Object.values(S)) {
@@ -35,7 +47,17 @@ for (const sc of Object.values(S)) {
     l.el.style.opacity = 0;
     overlay.append(l.el);
   }
+  sc.scene.environment = envMap;
+  sc.scene.environmentIntensity = sc.envIntensity ?? 0.45;
+  if (sc.envRotation) sc.scene.environmentRotation.set(...sc.envRotation);
 }
+
+// post-processing: HDR render → subtle bloom → tone mapping
+const FX = params.get('fx') !== '0';
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: params.has('aa') ? +params.get('aa') : 4 }));
+const renderPass = new RenderPass(S.hook.scene, S.hook.camera);
+const bloom = new UnrealBloomPass(new THREE.Vector2(4, 4), 0.26, 0.5, 1.0);
+composer.addPass(renderPass); if (params.get('bloom') !== '0') composer.addPass(bloom); composer.addPass(new OutputPass());
 
 function layout() {
   const barH = document.body.classList.contains('clean') ? 0 : $('bar').offsetHeight;
@@ -44,6 +66,9 @@ function layout() {
   stageEl.style.width = w + 'px'; stageEl.style.height = h + 'px';
   renderer.setPixelRatio(RECORD ? 1 : Math.min(devicePixelRatio, 2));
   renderer.setSize(w, h, false);
+  composer.setPixelRatio(renderer.getPixelRatio());
+  composer.setSize(w, h);
+  renderer.domElement.style.width = renderer.domElement.style.height = '';
 }
 addEventListener('resize', () => { layout(); draw(); });
 
@@ -73,7 +98,7 @@ function draw() {
   if (active !== sc) { if (active) for (const l of active.labels) l.el.style.opacity = 0; active = sc; }
   const w = stageEl.clientWidth, h = stageEl.clientHeight;
   sc.camera.aspect = 16 / 9; sc.camera.updateProjectionMatrix(); sc.camera.updateMatrixWorld();
-  renderer.render(sc.scene, sc.camera);
+  if (FX) { renderPass.scene = sc.scene; renderPass.camera = sc.camera; composer.render(); } else renderer.render(sc.scene, sc.camera);
   for (const l of sc.labels) {
     if (l.o < 0.01) { l.el.style.opacity = 0; continue; }
     v.copy(l.pos).project(sc.camera);

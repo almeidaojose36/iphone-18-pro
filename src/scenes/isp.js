@@ -1,8 +1,9 @@
 // Chapter 4: raw mosaic → demosaic → white balance → denoise → tone.
+// Coarse pixel blocks while the pipeline works on sensor data; the finished photograph cross-fades in at Tone.
 import { THREE, baseScene, makeCamera, camPath, ramp, win, lerp, clamp01, hash, label } from '../util.js';
-import { scenePixel } from '../photo.js';
+import { photoLinear, photoTexture } from '../photo.js';
 
-const GW = 42, GH = 28, S = 0.18;
+const GW = 54, GH = 36, S = 0.14, UNDER = 0.55;
 const bayer = (x, y) => (x % 2 === 0 && y % 2 === 0 ? 0 : x % 2 === 1 && y % 2 === 1 ? 2 : 1);
 const CAST = [1.35, 1.0, 0.55], CHZ = [1.5, 0, -1.5];
 
@@ -12,14 +13,21 @@ export function build() {
   const geo = new THREE.BoxGeometry(S, S, S * 0.25);
   const mk = () => { const m = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial(), n); m.frustumCulled = false; scene.add(m); return m; };
   const raw = mk(), fill = [mk(), mk(), mk()], fin = mk();
+  const src = photoLinear(GW, GH);
   const base = new Float32Array(n * 3), noise = new Float32Array(n * 3);
   for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) {
-    const i = y * GW + x, p = scenePixel((x + 0.5) / GW, (y + 0.5) / GH);
-    for (let k = 0; k < 3; k++) { base[i * 3 + k] = p[k]; noise[i * 3 + k] = hash(i, k + 40) - 0.5; }
+    const i = y * GW + x;
+    for (let k = 0; k < 3; k++) { base[i * 3 + k] = src[i * 3 + k] * UNDER; noise[i * 3 + k] = hash(i, k + 40) - 0.5; }
   }
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), ps = new THREE.Vector3(), sc = new THREE.Vector3(), col = new THREE.Color();
   const enc = (v) => Math.pow(clamp01(v), 1 / 2.2);
   const setCol = (mesh, i, r, g, b) => mesh.setColorAt(i, col.setRGB(enc(r), enc(g), enc(b), THREE.SRGBColorSpace));
+
+  // the finished, full-resolution photograph
+  const crispMat = new THREE.MeshBasicMaterial({ map: photoTexture(GW / GH), transparent: true, opacity: 0, depthWrite: false });
+  const crisp = new THREE.Mesh(new THREE.PlaneGeometry(GW * S, GH * S), crispMat);
+  crisp.position.z = S * 0.125 + 0.02; crisp.renderOrder = 5;
+  scene.add(crisp);
 
   const stages = ['RAW', 'DEMOSAIC', 'WHITE BALANCE', 'DENOISE', 'TONE'];
   const SL = stages.map((s, i) => label(s, (i - 2) * 1.9, GH * S / 2 + 0.92, 0, 'stage'));
@@ -39,12 +47,13 @@ export function build() {
     const tint = ramp(t, c.mosaic + 11, c.mosaic + 14);
     const merge = ramp(t, c.wb - 5, c.wb - 1.5);
     const split = ramp(t, c.demosaic + 1, c.demosaic + 5) * (1 - merge);
-    const W = ramp(t, c.wb + 14, c.wb + 21), Dn = ramp(t, c.denoise + 5, c.denoise + 12), Tn = ramp(t, c.done - 6, c.done + 1);
+    const W = ramp(t, c.wb + 14, c.wb + 21), Dn = ramp(t, c.denoise + 5, c.denoise + 12), Tn = ramp(t, c.done - 7, c.done - 2.5);
+    crispMat.opacity = ramp(t, c.done - 4.5, c.done); crisp.visible = crispMat.opacity > 0.01;
     const fillSpan = (c.wb - 6 - (c.fill + 2));
     const showFinal = merge > 0.98;
     raw.visible = !showFinal; fin.visible = showFinal;
     for (const f of fill) f.visible = !showFinal && t > c.fill;
-    const gain = lerp(1.0, 1.7, Tn), gap = lerp(0.86, 1.0, Tn), nz = 0.2 * (1 - Dn);
+    const gain = lerp(1.0, 1 / UNDER, Tn), gap = lerp(0.86, 1.0, Tn), nz = 0.1 * (1 - Dn);
 
     for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) {
       const i = y * GW + x, ch = bayer(x, y);
@@ -52,7 +61,7 @@ export function build() {
       const appear = ramp(t, c.raw + 1 + (x + y) * 0.03, c.raw + 1.6 + (x + y) * 0.03);
       if (!showFinal) {
         // measured sample: dim, noisy, single channel
-        const v = base[i * 3 + ch] * CAST[ch] * 1.25 + noise[i * 3 + ch] * 0.2;
+        const v = base[i * 3 + ch] * CAST[ch] * 1.5 + noise[i * 3 + ch] * 0.1;
         const gr = clamp01(v) * 0.75;
         m4.compose(ps.set(px, py, CHZ[ch] * split), q, sc.set(0.86 * appear, 0.86 * appear, 1));
         raw.setMatrixAt(i, m4);
@@ -62,7 +71,7 @@ export function build() {
           const on = k === ch ? 0 : ramp(t, c.fill + 2 + (x / GW) * fillSpan, c.fill + 2.8 + (x / GW) * fillSpan);
           m4.compose(ps.set(px, py, CHZ[k] * split), q, sc.set(0.86 * on, 0.86 * on, 1));
           fill[k].setMatrixAt(i, m4);
-          const vk = base[i * 3 + k] * CAST[k] * 1.25 + noise[i * 3 + k] * 0.2;
+          const vk = base[i * 3 + k] * CAST[k] * 1.5 + noise[i * 3 + k] * 0.1;
           setCol(fill[k], i, k === 0 ? vk : 0.01, k === 1 ? vk : 0.01, k === 2 ? vk : 0.01);
         }
       } else {
@@ -77,14 +86,14 @@ export function build() {
     }
     for (const m of [raw, fin, ...fill]) if (m.visible) { m.instanceMatrix.needsUpdate = true; m.instanceColor.needsUpdate = true; }
 
-    const stage = t < c.demosaic ? 0 : t < c.wb ? 1 : t < c.denoise ? 2 : t < c.denoise + 16 ? 3 : 4;
+    const stage = t < c.demosaic ? 0 : t < c.wb ? 1 : t < c.denoise ? 2 : t < c.done - 7 ? 3 : 4;
     SL.forEach((l, i) => { l.o = ramp(t, c.mosaic + 20, c.mosaic + 22) * (i === stage ? 1 : 0.3); l.cls = 'stage' + (i === stage ? ' on' : ''); });
     L.raw.o = win(t, c.mosaic + 0.5, c.mosaic + 10, 0.8);
     L.one.o = win(t, c.mosaic + 11, c.demosaic, 0.8);
     L.holes.o = win(t, c.demosaic + 5, c.fill + 1, 0.8);
     L.guess.o = win(t, c.fill + 3, c.wb - 5, 0.8);
     L.wb.o = win(t, c.wb + 12, c.denoise, 0.8);
-    L.dn.o = win(t, c.denoise + 4, c.done - 6, 0.8);
+    L.dn.o = win(t, c.denoise + 4, c.done - 7, 0.8);
     L.done.o = win(t, c.done + 4, c.done + 14, 0.8);
     camPath(camera, [
       { t: 0, p: [0, 0, 13], l: [0, 0, 0] },

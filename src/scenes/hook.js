@@ -1,64 +1,116 @@
 // Hook: a DSLR telephoto barrel next to a < 9 mm phone, then a single ray enters the lens.
 // Units: 1 = 100 mm.
-import { THREE, COL, baseScene, makeCamera, camPath, ramp, win, lerp, glow, Beam, label, glassMat, roundedSlab, setOpacity } from '../util.js';
-import { photoCanvas } from '../photo.js';
+import { THREE, COL, baseScene, makeCamera, camPath, ramp, win, lerp, glow, Beam, label, roundedSlab, roundedPlane, setOpacity,
+  physGlass, lensGeo, latheRing, ribbedRing, brushedMetal } from '../util.js';
+import { photoTexture } from '../photo.js';
 
 export function build() {
   const scene = baseScene(), camera = makeCamera(38);
 
-  // --- DSLR telephoto lens (cut-away barrel so the glass is visible) ---
+  // --- DSLR telephoto lens, cut away so the glass is visible. Built along +Y (front), then laid on its side. ---
   const lens = new THREE.Group();
   lens.position.set(-1.7, 0, 0);
-  const metal = new THREE.MeshStandardMaterial({ color: 0x3a404c, metalness: 0.5, roughness: 0.4, side: THREE.DoubleSide });
-  const ring = new THREE.MeshStandardMaterial({ color: 0x1c1f26, metalness: 0.3, roughness: 0.8, side: THREE.DoubleSide });
-  const parts = [ // [x centre, length, radius, material]
-    [-1.05, 0.5, 0.33, metal], [-0.3, 1.0, 0.41, ring], [0.75, 1.1, 0.5, metal],
-  ];
-  for (const [x, len, r, m] of parts) {
-    const g = new THREE.CylinderGeometry(r, r, len, 64, 1, true, Math.PI * 0.75, Math.PI * 1.35);
-    const mesh = new THREE.Mesh(g, m);
-    mesh.rotation.z = Math.PI / 2;
-    mesh.position.x = x;
-    lens.add(mesh);
-  }
-  const red = new THREE.Mesh(new THREE.TorusGeometry(0.505, 0.012, 8, 64), new THREE.MeshBasicMaterial({ color: 0xff3b30 }));
-  red.rotation.y = Math.PI / 2; red.position.x = 1.2;
-  lens.add(red);
-  const glass = glassMat(0.3);
-  [[-1.1, 0.28, 0.05], [-0.7, 0.3, 0.07], [-0.35, 0.36, 0.05], [0.05, 0.38, 0.09], [0.5, 0.44, 0.06], [0.9, 0.46, 0.1], [1.2, 0.47, 0.07]]
-    .forEach(([x, r, th]) => {
-      const e = new THREE.Mesh(new THREE.SphereGeometry(1, 40, 20), glass);
-      e.scale.set(th, r, r); e.position.x = x;
-      lens.add(e);
-    });
+  const tube = new THREE.Group();
+  tube.rotation.z = -Math.PI / 2;
+  lens.add(tube);
+  const P0 = 0.6, PL = Math.PI * 1.28;                       // kept arc; the gap faces the camera
+  const DS = THREE.DoubleSide;
+  const anod = brushedMetal(0x24272d, { roughness: 0.5, side: DS, bump: 0.4 });
+  const chrome = new THREE.MeshStandardMaterial({ color: 0xd4d8de, metalness: 1, roughness: 0.14, side: DS });
+  const rubber = new THREE.MeshStandardMaterial({ color: 0x0c0d10, metalness: 0, roughness: 0.88, side: DS });
+  const inner = new THREE.MeshStandardMaterial({ color: 0x08090b, metalness: 0.2, roughness: 0.9, side: DS });
+  const shell = (r0, r1, y0, y1, mat, wall = 0.022) => {
+    const m = new THREE.Mesh(latheRing([[r0, y0], [r1, y1], [r1 - wall, y1], [r0 - wall, y0]], 96, P0, PL), mat);
+    tube.add(m); return m;
+  };
+  // mount: bayonet + flange (bright metal), then the barrel sections
+  shell(0.25, 0.25, -1.4, -1.33, chrome, 0.03);
+  shell(0.31, 0.31, -1.33, -1.28, chrome, 0.06);
+  shell(0.33, 0.33, -1.28, -0.86, anod);
+  shell(0.345, 0.345, -0.86, -0.8, chrome, 0.03);
+  shell(0.385, 0.385, -0.8, -0.1, inner);
+  shell(0.39, 0.39, -0.1, 0.16, anod);
+  shell(0.44, 0.44, 0.16, 0.76, inner);
+  shell(0.47, 0.5, 0.76, 1.2, anod);
+  shell(0.5, 0.56, 1.24, 1.62, inner, 0.012);                 // hood
+  // ribbed rubber zoom and focus rings
+  const zoomRing = new THREE.Mesh(ribbedRing(0.395, 0.66, 64, 0.016, P0, PL), rubber); zoomRing.position.y = -0.45;
+  const focusRing = new THREE.Mesh(ribbedRing(0.45, 0.56, 120, 0.01, P0, PL), rubber); focusRing.position.y = 0.46;
+  tube.add(zoomRing, focusRing);
+  const red = new THREE.Mesh(new THREE.TorusGeometry(0.503, 0.011, 8, 96, PL), new THREE.MeshBasicMaterial({ color: 0xff3b30 }));
+  red.rotation.set(Math.PI / 2, 0, Math.PI / 2 - P0 - PL); red.position.y = 1.22;
+  tube.add(red);
+  // glass: [y, semi-diameter, centre thickness, front sag, rear sag]
+  const glass = physGlass({ color: 0xdff0ff, transmission: 0.93, thickness: 0.06, iridescence: 0.7, env: 2.4 });
+  const retain = new THREE.MeshStandardMaterial({ color: 0x15171b, metalness: 0.6, roughness: 0.5 });
+  [[1.12, 0.455, 0.11, 0.085, -0.03], [0.93, 0.44, 0.05, 0.015, 0.05], [0.56, 0.4, 0.13, 0.055, 0.055], [0.22, 0.345, 0.035, -0.045, -0.04],
+    [-0.08, 0.33, 0.07, 0.05, -0.022], [-0.42, 0.33, 0.1, 0.045, 0.04], [-0.72, 0.29, 0.09, 0.05, 0.02], [-0.79, 0.29, 0.03, -0.02, -0.035],
+    [-1.08, 0.27, 0.06, -0.02, 0.045]].forEach(([y, r, tc, s1, s2]) => {
+    const e = new THREE.Mesh(lensGeo(r, tc, s1, s2), glass); e.position.y = y;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 1.05, 0.012, 8, 72), retain); ring.rotation.x = Math.PI / 2; ring.position.y = y;
+    tube.add(e, ring);
+  });
+  // iris diaphragm
+  const iris = new THREE.Mesh(new THREE.RingGeometry(0.15, 0.33, 9, 1), new THREE.MeshStandardMaterial({ color: 0x1b1d22, metalness: 0.8, roughness: 0.35, side: DS }));
+  iris.rotation.x = Math.PI / 2; iris.position.y = -0.25;
+  tube.add(iris);
   scene.add(lens);
 
-  // --- phone ---
+  // --- phone: brushed titanium frame, glass back, camera plateau, three deep lenses ---
   const phone = new THREE.Group();
   phone.position.set(1.5, 0, 0);
-  const T = 0.0875;
-  const body = new THREE.Mesh(roundedSlab(0.72, 1.5, T, 0.09),
-    new THREE.MeshStandardMaterial({ color: 0x4a505c, metalness: 0.5, roughness: 0.35 }));
-  phone.add(body);
-  const plateau = new THREE.Mesh(roundedSlab(0.66, 0.4, 0.035, 0.08),
-    new THREE.MeshStandardMaterial({ color: 0x5a616e, metalness: 0.5, roughness: 0.35 }));
-  plateau.position.set(0, 0.5, T / 2 + 0.02);
+  const T = 0.0875, zb = T / 2;
+  const titanium = brushedMetal(0x8e8f93, { roughness: 0.55, env: 0.7 });
+  scene.userData.lights.key.intensity = 1.5; scene.userData.lights.fillL.intensity = 0.4;
+  phone.add(new THREE.Mesh(roundedSlab(0.72, 1.5, T, 0.1), titanium));
+  const backGlass = new THREE.Mesh(roundedSlab(0.685, 1.465, 0.004, 0.088),
+    new THREE.MeshPhysicalMaterial({ color: 0x6d7076, metalness: 0.35, roughness: 0.5, clearcoat: 0.5, clearcoatRoughness: 0.35 }));
+  backGlass.position.z = zb + 0.0105;
+  phone.add(backGlass);
+  const plateau = new THREE.Mesh(roundedSlab(0.66, 0.4, 0.03, 0.085), brushedMetal(0x97989c, { roughness: 0.55, env: 0.7 }));
+  plateau.position.set(0, 0.5, zb + 0.02);
   phone.add(plateau);
+  const zp = zb + 0.0385;                                     // top of the plateau
+  const steel = new THREE.MeshStandardMaterial({ color: 0xaeb1b7, metalness: 1, roughness: 0.3, envMapIntensity: 0.5 });
+  const black = new THREE.MeshStandardMaterial({ color: 0x101216, metalness: 0.5, roughness: 0.45, side: DS });
+  const coated = physGlass({ color: 0xcfd8ff, transmission: 0.85, thickness: 0.01, iridescence: 1, env: 0.9, emissive: 0x2a3466, emissiveIntensity: 0.35 });
+  const sapphire = physGlass({ transmission: 1, thickness: 0.004, iridescence: 0.2, env: 0.25, roughness: 0.05 });
+  const sensorMat = new THREE.MeshPhysicalMaterial({ color: 0x1a2260, metalness: 1, roughness: 0.2, iridescence: 1, iridescenceIOR: 1.8, emissive: 0x0b2a66, emissiveIntensity: 0.5 });
+  const ringGeo = latheRing([[0.068, -0.004], [0.096, -0.004], [0.096, 0.034], [0.088, 0.046], [0.075, 0.046], [0.068, 0.04]], 72);
   const lensPos = [[-0.2, 0.6], [-0.2, 0.4], [-0.03, 0.5]];
   for (const [x, y] of lensPos) {
-    const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.03, 40),
-      new THREE.MeshStandardMaterial({ color: 0x8a92a0, metalness: 0.5, roughness: 0.25 }));
-    rim.rotation.x = Math.PI / 2; rim.position.set(x, y, T / 2 + 0.05);
-    const gl = new THREE.Mesh(new THREE.CircleGeometry(0.066, 40),
-      new THREE.MeshStandardMaterial({ color: 0x05070c, metalness: 1, roughness: 0.05, emissive: 0x0b2a44, emissiveIntensity: 0.8 }));
-    gl.position.set(x, y, T / 2 + 0.066);
-    phone.add(rim, gl);
+    const g = new THREE.Group();
+    g.position.set(x, y, zp); g.rotation.x = Math.PI / 2;      // local +Y = out of the back of the phone
+    const well = new THREE.Mesh(new THREE.CylinderGeometry(0.069, 0.069, 0.044, 48, 1, true), black); well.position.y = 0.022;
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(0.069, 48), black); floor.rotation.x = -Math.PI / 2; floor.position.y = 0.0008;
+    const chip = new THREE.Mesh(new THREE.CircleGeometry(0.024, 32), sensorMat); chip.rotation.x = -Math.PI / 2; chip.position.y = 0.0016;
+    const cover = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.072, 0.003, 48), sapphire); cover.position.y = 0.041;
+    g.add(new THREE.Mesh(ringGeo, steel), well, floor, chip, cover);
+    // three coated elements stepping down towards the sensor, each in a black baffle
+    [[0.033, 0.058, 0.01, 0.008, -0.002], [0.022, 0.046, 0.008, 0.005, 0.004], [0.011, 0.034, 0.007, -0.003, 0.005]].forEach(([yy, r, tc, s1, s2]) => {
+      const e = new THREE.Mesh(lensGeo(r, tc, s1, s2, 40), coated); e.position.y = yy;
+      const baffle = new THREE.Mesh(new THREE.RingGeometry(r, 0.07, 48), black); baffle.rotation.x = -Math.PI / 2; baffle.position.y = yy - 0.003;
+      g.add(e, baffle);
+    });
+    phone.add(g);
   }
-  const screenTex = new THREE.CanvasTexture(photoCanvas(240, 500, { gain: 1.7 }));
-  screenTex.colorSpace = THREE.SRGBColorSpace;
-  const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.67, 1.45), new THREE.MeshBasicMaterial({ map: screenTex }));
-  screen.rotation.y = Math.PI; screen.position.z = -T / 2 - 0.012;
-  phone.add(screen);
+  // flash, LiDAR window, microphone
+  const dot = (x, y, r, mat) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.004, 32), mat); m.rotation.x = Math.PI / 2; m.position.set(x, y, zp); phone.add(m); };
+  dot(0.2, 0.6, 0.032, new THREE.MeshPhysicalMaterial({ color: 0xfff1c9, roughness: 0.35, clearcoat: 1, emissive: 0xffe2a0, emissiveIntensity: 0.12 }));
+  dot(0.2, 0.42, 0.028, new THREE.MeshPhysicalMaterial({ color: 0x08090c, roughness: 0.1, clearcoat: 1 }));
+  dot(0.2, 0.51, 0.007, black);
+  // side buttons
+  for (const [x, y, h] of [[0.362, 0.33, 0.07], [0.362, 0.18, 0.11], [0.362, 0.04, 0.11], [-0.362, 0.2, 0.17], [-0.362, -0.25, 0.13]]) {
+    const b = new THREE.Mesh(roundedSlab(0.012, h, 0.03, 0.005), titanium); b.position.set(x, y, 0); phone.add(b);
+  }
+  // front: black bezel, the finished photograph on screen, dynamic island
+  const bezel = new THREE.Mesh(roundedPlane(0.7, 1.48, 0.092), new THREE.MeshPhysicalMaterial({ color: 0x020203, roughness: 0.08, clearcoat: 1 }));
+  bezel.rotation.y = Math.PI; bezel.position.z = -zb - 0.0108;
+  const screen = new THREE.Mesh(roundedPlane(0.672, 1.452, 0.08), new THREE.MeshBasicMaterial({ map: photoTexture(0.672 / 1.452, [0.3, 0.5]) }));
+  screen.rotation.y = Math.PI; screen.position.z = -zb - 0.0114;
+  const island = new THREE.Mesh(roundedPlane(0.17, 0.05, 0.024), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+  island.rotation.y = Math.PI; island.position.set(0, 0.655, -zb - 0.012);
+  phone.add(bezel, screen, island);
   scene.add(phone);
 
   // thickness / length dimension bars
@@ -68,7 +120,7 @@ export function build() {
   scene.add(lensDim);
 
   // --- incoming ray ---
-  const tele = new THREE.Vector3(1.5 - 0.2, 0.6, T / 2 + 0.07);
+  const tele = new THREE.Vector3(1.5 - 0.2, 0.6, zp + 0.012);
   const lampPos = new THREE.Vector3(-5, 5, 26);
   const beam = new Beam([lampPos, tele], COL.gold, 0.006);
   scene.add(beam.group);
@@ -128,5 +180,5 @@ export function build() {
     L.end.o = ask;
   }
 
-  return { scene, camera, labels, update, outro };
+  return { scene, camera, labels, update, outro, envIntensity: 0.4 };
 }

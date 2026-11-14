@@ -11,6 +11,7 @@ generated voiceover with captions, and the Three.js scenes synced to that voiceo
 | Voiceover, one file per chapter + one full track | `audio/*.mp3`, `audio/voiceover_full.mp3` |
 | Captions for YouTube | `audio/captions.srt` |
 | 3D player | `index.html`, `src/` |
+| HDRI and photograph (CC0) | `assets/` |
 
 ## Watch it
 
@@ -23,17 +24,24 @@ support, such as `python3 -m http.server`, cannot seek the narration.)
 
 Keys: `Space` play/pause · `←` `→` 5 s · `Shift+←` `Shift+→` chapter · `C` captions · `M` mute · `H` hide controls.
 
-URL options: `?clean` hides the control bar for screen recording, `?cc=0` hides captions, `?t=96` starts at 96 s.
+URL options: `?clean` hides the control bar for screen recording, `?cc=0` hides captions, `?t=96` starts at 96 s,
+`?fx=0` turns off post-processing and `?bloom=0` just the bloom, for slow machines.
 
 ## Render to video
 
 ```bash
-node tools/render.mjs
+tools/render-parallel.sh 1280 24 4
 ```
 
-Steps the timeline frame by frame in headless Chromium and writes `out/deep-teardown.mp4`
-(1920×1080, 30 fps, voiceover muxed in). Needs `playwright` and `ffmpeg`. Useful flags:
-`--from 55 --to 75`, `--width 3840`, `--fps 60`, `--cc 0`, `--shots 10,80,200` for stills.
+Arguments are width, frames per second and worker count; this writes `out/deep-teardown-720p.mp4` with the
+voiceover muxed in. It renders 20-second segments in headless Chromium and joins them, and it is safe to
+re-run: finished segments are kept. Use `tools/render-parallel.sh 1920 30 4` for the 1080p master.
+Software rendering is slow now that the scenes use transmissive glass and bloom (roughly 0.6 s per 720p
+frame across four workers); on a machine with a GPU, screen-recording the player with `?clean` is quicker.
+
+`node tools/render.mjs` renders a single range in one process. Useful flags: `--from 55 --to 75`,
+`--width 3840`, `--fps 60`, `--cc 0`, `--fx 0` (no bloom), `--noaudio`, `--shots 10,80,200` for stills.
+Both need `playwright` and `ffmpeg`.
 
 ## Change the narration
 
@@ -53,5 +61,11 @@ on the spoken "one, two, three, four".
 
 Each file in `src/scenes/` exports `build()` and returns `{ scene, camera, labels, update(t, cues) }`.
 `update` is a pure function of time, so scrubbing and offline rendering give identical frames.
-`src/main.js` owns the master timeline, captions, labels and audio sync. three.js r187 is vendored
-in `vendor/` so the page runs offline.
+`src/main.js` owns the master timeline, captions, labels and audio sync. three.js r187 and the
+post-processing addons are vendored in `vendor/` so the page runs offline.
+
+Look: every scene is lit by a studio HDRI (`assets/`, CC0) plus rim lights; lenses, the tetraprism,
+sapphire windows and microlenses are `MeshPhysicalMaterial` glass (transmission, ior 1.52, thin-film
+iridescence); a low-strength `UnrealBloomPass` gives beams and bounce points their glow. The helpers
+(`physGlass`, `lensGeo`, `brushedMetal`, `woundCoil`, `flexureGeo`, …) live in `src/util.js`.
+Asset sources are listed in [`assets/CREDITS.md`](assets/CREDITS.md).

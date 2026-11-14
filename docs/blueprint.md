@@ -29,7 +29,9 @@ Simplifications the script makes on purpose (fine for this audience, good pinned
 - The stabilisation visual moves the phone side to side; real shake is mostly tilt.
 - The iPhone 18 Pro's variable aperture on the main camera is not covered. It would make a strong Short or a line in Chapter 3 ("how wide the tap is open").
 
-Rights note: the repo holds Apple marketing clips and a third-party review video. Using those in a monetised upload carries copyright risk; the 3D scenes here use no Apple imagery.
+Rights note: the repo holds Apple marketing clips and a third-party review video. Using those in a monetised upload carries copyright risk; the 3D scenes here use no Apple imagery. The studio HDRI and the night-street photograph are CC0 from Poly Haven (see `assets/CREDITS.md`).
+
+Source check for rows 3 and 5: Yole Group's teardown comparison of the iPhone 15 Pro Max describes the telephoto as a 4-bounce glass tetraprism with an XYZ sensor-shift voice coil motor, which matches the script. Apple has not published the internals of the 18 Pro module, so treat the 18 Pro as assumed to follow the same design.
 
 ## Packaging: titles and thumbnails
 

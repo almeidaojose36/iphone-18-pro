@@ -5,6 +5,7 @@
 //   node tools/render.mjs --from 55 --to 75       just a section
 //   node tools/render.mjs --width 960 --fps 15    quick preview
 //   node tools/render.mjs --cc 0                  without burned-in captions
+//   node tools/render.mjs --fx 0                  no bloom pass (faster)     --noaudio   video only
 //   node tools/render.mjs --shots 10,80,200       PNG stills at those times → out/shots/
 //
 // Requires: playwright (with Chromium) and ffmpeg on PATH.
@@ -22,7 +23,7 @@ const width = +arg('width', 1920), height = Math.round(width * 9 / 16), fps = +a
 const out = path.resolve(ROOT, arg('out', 'out/deep-teardown.mp4'));
 const shots = arg('shots', null);
 
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.png': 'image/png', '.jpg': 'image/jpeg' };
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.png': 'image/png', '.jpg': 'image/jpeg', '.hdr': 'application/octet-stream' };
 const server = http.createServer((req, res) => {
   const p = path.join(ROOT, decodeURIComponent(new URL(req.url, 'http://x').pathname));
   if (!p.startsWith(ROOT) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) { res.writeHead(404); return res.end(); }
@@ -30,7 +31,7 @@ const server = http.createServer((req, res) => {
   fs.createReadStream(p).pipe(res);
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
-const url = `http://127.0.0.1:${server.address().port}/index.html?record&cc=${arg('cc', '1')}`;
+const url = `http://127.0.0.1:${server.address().port}/index.html?record&cc=${arg('cc', '1')}&fx=${arg('fx', '1')}${arg('q', '')}`;
 
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
@@ -55,7 +56,7 @@ if (shots) {
   const from = +arg('from', 0), to = Math.min(total, +arg('to', total));
   const audio = path.join(ROOT, 'audio/voiceover_full.mp3');
   const ff = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',
-    ...(fs.existsSync(audio) ? ['-ss', String(from), '-t', String(to - from), '-i', audio] : []),
+    ...(fs.existsSync(audio) && !process.argv.includes('--noaudio') ? ['-ss', String(from), '-t', String(to - from), '-i', audio] : []),
     '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', arg('crf', '18'), '-preset', 'medium', '-c:a', 'aac', '-b:a', '192k', '-shortest', out],
   { stdio: ['pipe', 'inherit', 'inherit'] });
   const n = Math.floor((to - from) * fps), t0 = Date.now();
