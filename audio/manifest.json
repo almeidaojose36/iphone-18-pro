@@ -1,0 +1,1187 @@
+{
+ "voice": "Inside the Machine Narrator",
+ "lead": 0.6,
+ "tail": 1.4,
+ "chapters": [
+  {
+   "id": "hook",
+   "label": "Hook",
+   "title": "The Physics Problem",
+   "file": "audio/hook.mp3",
+   "start": 0.0,
+   "duration": 53.67,
+   "audio": 51.67,
+   "cues": {
+    "start": 0.6,
+    "phone": 10.503,
+    "impossible": 15.438,
+    "ray": 28.418
+   },
+   "captions": [
+    {
+     "start": 0.6,
+     "end": 3.259,
+     "text": "This is a professional telephoto lens."
+    },
+    {
+     "start": 3.433,
+     "end": 7.287,
+     "text": "It's long, it's heavy, and it's packed with thick glass,"
+    },
+    {
+     "start": 7.415,
+     "end": 10.364,
+     "text": "because that's what the laws of optics demand."
+    },
+    {
+     "start": 10.503,
+     "end": 12.198,
+     "text": "And this is a phone."
+    },
+    {
+     "start": 12.477,
+     "end": 14.938,
+     "text": "It's less than nine millimetres thick."
+    },
+    {
+     "start": 15.438,
+     "end": 17.865,
+     "text": "By the rules that shaped that big lens,"
+    },
+    {
+     "start": 17.946,
+     "end": 23.066,
+     "text": "a camera this thin shouldn't be able to zoom, shouldn't hold steady in your hand,"
+    },
+    {
+     "start": 23.205,
+     "end": 25.713,
+     "text": "and definitely shouldn't see in the dark."
+    },
+    {
+     "start": 25.991,
+     "end": 28.046,
+     "text": "And yet it does all three."
+    },
+    {
+     "start": 28.418,
+     "end": 31.773,
+     "text": "So today, we're going to follow a single ray of light."
+    },
+    {
+     "start": 32.005,
+     "end": 35.894,
+     "text": "It leaves a streetlamp, slips through a sapphire window,"
+    },
+    {
+     "start": 36.069,
+     "end": 39.842,
+     "text": "gets folded around corners inside a block of glass,"
+    },
+    {
+     "start": 40.12,
+     "end": 43.754,
+     "text": "lands on a chip of silicon that floats on magnets,"
+    },
+    {
+     "start": 43.789,
+     "end": 46.936,
+     "text": "and comes out the other side as a finished photo."
+    },
+    {
+     "start": 47.377,
+     "end": 50.094,
+     "text": "The whole trip takes a fraction of a second."
+    },
+    {
+     "start": 50.465,
+     "end": 52.241,
+     "text": "Let's slow it down."
+    }
+   ]
+  },
+  {
+   "id": "prism",
+   "label": "Chapter 1",
+   "title": "Folding Light Around a Corner",
+   "file": "audio/prism.mp3",
+   "start": 53.67,
+   "duration": 119.107,
+   "audio": 117.107,
+   "cues": {
+    "focal": 0.6,
+    "fold": 32.957,
+    "bounce": 42.988,
+    "b1": 49.443,
+    "b2": 56.955,
+    "b3": 59.219,
+    "b4": 62.33,
+    "hallway": 68.17,
+    "focus": 94.687
+   },
+   "captions": [
+    {
+     "start": 0.6,
+     "end": 1.854,
+     "text": "Start with the problem."
+    },
+    {
+     "start": 1.982,
+     "end": 6.927,
+     "text": "To magnify a distant subject, a lens needs a long focal length."
+    },
+    {
+     "start": 7.055,
+     "end": 11.931,
+     "text": "Put simply, the light needs room to travel after it passes through the glass,"
+    },
+    {
+     "start": 12.013,
+     "end": 13.894,
+     "text": "before it comes into focus."
+    },
+    {
+     "start": 14.172,
+     "end": 16.25,
+     "text": "More zoom, more distance."
+    },
+    {
+     "start": 16.483,
+     "end": 21.127,
+     "text": "That's why sports photographers carry lenses the size of a forearm."
+    },
+    {
+     "start": 21.359,
+     "end": 26.386,
+     "text": "A phone's telephoto camera needs more than a centimetre and a half of travel."
+    },
+    {
+     "start": 26.757,
+     "end": 29.671,
+     "text": "Stack that on top of the lens and the sensor,"
+    },
+    {
+     "start": 29.741,
+     "end": 32.725,
+     "text": "and it simply doesn't fit inside the phone."
+    },
+    {
+     "start": 32.957,
+     "end": 37.241,
+     "text": "So engineers stopped trying to go deep, and went sideways instead."
+    },
+    {
+     "start": 37.612,
+     "end": 42.616,
+     "text": "Beneath the lens sits a single slab of glass, called a tetraprism."
+    },
+    {
+     "start": 42.988,
+     "end": 44.044,
+     "text": "Watch the ray."
+    },
+    {
+     "start": 44.277,
+     "end": 48.909,
+     "text": "It drops in through the top, and hits an angled, mirror-coated face."
+    },
+    {
+     "start": 49.443,
+     "end": 49.966,
+     "text": "One."
+    },
+    {
+     "start": 50.175,
+     "end": 53.24,
+     "text": "It shoots across and glances off the top surface,"
+    },
+    {
+     "start": 53.274,
+     "end": 56.502,
+     "text": "where it's trapped by total internal reflection."
+    },
+    {
+     "start": 56.955,
+     "end": 57.512,
+     "text": "Two."
+    },
+    {
+     "start": 57.86,
+     "end": 58.87,
+     "text": "Off the bottom."
+    },
+    {
+     "start": 59.219,
+     "end": 59.846,
+     "text": "Three."
+    },
+    {
+     "start": 60.055,
+     "end": 61.993,
+     "text": "Off a second angled mirror."
+    },
+    {
+     "start": 62.33,
+     "end": 63.015,
+     "text": "Four."
+    },
+    {
+     "start": 63.422,
+     "end": 67.381,
+     "text": "Only then does it drop out of the glass, and onto the sensor."
+    },
+    {
+     "start": 68.17,
+     "end": 69.494,
+     "text": "Think of it like this."
+    },
+    {
+     "start": 70.283,
+     "end": 75.275,
+     "text": "You need a runner to cover a long hallway, but all you have is a closet."
+    },
+    {
+     "start": 75.96,
+     "end": 81.44,
+     "text": "So you line the closet with mirrors, and let the runner zigzag from wall to wall,"
+    },
+    {
+     "start": 81.615,
+     "end": 83.902,
+     "text": "until they've covered the full distance."
+    },
+    {
+     "start": 84.18,
+     "end": 86.885,
+     "text": "Same journey, a fraction of the space."
+    },
+    {
+     "start": 87.327,
+     "end": 89.997,
+     "text": "The light has no idea it was folded."
+    },
+    {
+     "start": 90.125,
+     "end": 94.188,
+     "text": "It arrives having travelled much farther than the phone is thick."
+    },
+    {
+     "start": 94.687,
+     "end": 95.86,
+     "text": "One more trick."
+    },
+    {
+     "start": 96.231,
+     "end": 100.748,
+     "text": "To focus, something has to move, and in a camera this cramped,"
+    },
+    {
+     "start": 100.806,
+     "end": 104.486,
+     "text": "there's no room to slide heavy glass back and forth."
+    },
+    {
+     "start": 105.275,
+     "end": 110.035,
+     "text": "So the sensor itself moves, nudged by tiny electromagnets,"
+    },
+    {
+     "start": 110.07,
+     "end": 114.32,
+     "text": "in steps measured in microns, thousandths of a millimetre,"
+    },
+    {
+     "start": 114.494,
+     "end": 117.675,
+     "text": "until the image snaps sharp."
+    }
+   ]
+  },
+  {
+   "id": "shift",
+   "label": "Chapter 2",
+   "title": "The Floating Sensor",
+   "file": "audio/shift.mp3",
+   "start": 172.777,
+   "duration": 123.104,
+   "audio": 121.104,
+   "cues": {
+    "shake": 0.6,
+    "float": 31.633,
+    "counter": 66.289,
+    "rate": 82.474,
+    "result": 104.753
+   },
+   "captions": [
+    {
+     "start": 0.6,
+     "end": 3.7,
+     "text": "Now there's a second problem, and it's you."
+    },
+    {
+     "start": 4.013,
+     "end": 6.8,
+     "text": "Your hands are never perfectly still."
+    },
+    {
+     "start": 6.974,
+     "end": 10.376,
+     "text": "Your pulse, your breathing, the press of your thumb,"
+    },
+    {
+     "start": 10.747,
+     "end": 15.31,
+     "text": "all of it makes the phone tremble by tiny fractions of a degree."
+    },
+    {
+     "start": 15.809,
+     "end": 18.444,
+     "text": "On a wide shot, you'd never notice."
+    },
+    {
+     "start": 18.735,
+     "end": 23.924,
+     "text": "But zoom in, and that tremble is magnified along with everything else."
+    },
+    {
+     "start": 24.47,
+     "end": 28.116,
+     "text": "During the exposure, the image smears across the sensor,"
+    },
+    {
+     "start": 28.208,
+     "end": 30.89,
+     "text": "and a point of light becomes a scribble."
+    },
+    {
+     "start": 31.633,
+     "end": 35.511,
+     "text": "Big cameras fix this by moving a group of lens elements."
+    },
+    {
+     "start": 35.708,
+     "end": 38.181,
+     "text": "Early phone cameras did the same thing."
+    },
+    {
+     "start": 38.413,
+     "end": 42.477,
+     "text": "But glass is heavy, and heavy things are slow to move."
+    },
+    {
+     "start": 42.755,
+     "end": 47.539,
+     "text": "So here, the lens stays put, and the lightest part moves instead:"
+    },
+    {
+     "start": 47.771,
+     "end": 48.735,
+     "text": "the sensor."
+    },
+    {
+     "start": 49.106,
+     "end": 51.939,
+     "text": "The silicon chip isn't bolted down."
+    },
+    {
+     "start": 52.067,
+     "end": 57.93,
+     "text": "It hangs on fine springs, surrounded by copper coils and small permanent magnets."
+    },
+    {
+     "start": 58.429,
+     "end": 62.156,
+     "text": "Run a current through a coil, and it pushes against its magnet,"
+    },
+    {
+     "start": 62.284,
+     "end": 65.709,
+     "text": "sliding the sensor sideways, or up and down."
+    },
+    {
+     "start": 66.289,
+     "end": 69.644,
+     "text": "A gyroscope feels the phone tilt one way."
+    },
+    {
+     "start": 70.016,
+     "end": 71.653,
+     "text": "Before the blur can form,"
+    },
+    {
+     "start": 71.746,
+     "end": 76.297,
+     "text": "the coils shove the sensor so that it follows the image exactly."
+    },
+    {
+     "start": 76.669,
+     "end": 78.027,
+     "text": "The body shakes."
+    },
+    {
+     "start": 78.155,
+     "end": 82.276,
+     "text": "The picture, as far as the sensor is concerned, never moves."
+    },
+    {
+     "start": 82.474,
+     "end": 84.563,
+     "text": "And this isn't one correction."
+    },
+    {
+     "start": 84.76,
+     "end": 85.735,
+     "text": "It's a loop:"
+    },
+    {
+     "start": 85.991,
+     "end": 90.205,
+     "text": "measure, move, check the position, and do it again,"
+    },
+    {
+     "start": 90.333,
+     "end": 95.778,
+     "text": "thousands of times every second, far faster than any tremor in your hand."
+    },
+    {
+     "start": 96.242,
+     "end": 99.528,
+     "text": "It's the same idea as noise-cancelling headphones:"
+    },
+    {
+     "start": 99.714,
+     "end": 103.824,
+     "text": "sense the disturbance, and produce its exact opposite."
+    },
+    {
+     "start": 104.753,
+     "end": 106.262,
+     "text": "The payoff is time."
+    },
+    {
+     "start": 106.494,
+     "end": 108.526,
+     "text": "With the image pinned in place,"
+    },
+    {
+     "start": 108.595,
+     "end": 112.16,
+     "text": "the shutter can stay open several times longer without blur,"
+    },
+    {
+     "start": 112.287,
+     "end": 115.283,
+     "text": "and a longer exposure means more light."
+    },
+    {
+     "start": 115.561,
+     "end": 121.668,
+     "text": "And as we're about to see, for a sensor this small, light is everything."
+    }
+   ]
+  },
+  {
+   "id": "photo",
+   "label": "Chapter 3",
+   "title": "Catching Photons in Silicon Buckets",
+   "file": "audio/photo.mp3",
+   "start": 295.881,
+   "duration": 135.46,
+   "audio": 133.46,
+   "cues": {
+    "zoom": 0.6,
+    "wells": 18.874,
+    "filters": 38.077,
+    "green": 64.351,
+    "rain": 83.044,
+    "dark": 96.952,
+    "overflow": 110.165,
+    "readout": 123.644
+   },
+   "captions": [
+    {
+     "start": 0.6,
+     "end": 1.738,
+     "text": "Let's go closer."
+    },
+    {
+     "start": 2.016,
+     "end": 2.992,
+     "text": "Much closer."
+    },
+    {
+     "start": 3.433,
+     "end": 8.46,
+     "text": "The surface of the sensor looks like a mirror, but zoom in a few thousand times,"
+    },
+    {
+     "start": 8.553,
+     "end": 10.608,
+     "text": "and it turns into a city grid:"
+    },
+    {
+     "start": 10.921,
+     "end": 15.612,
+     "text": "tens of millions of identical cells, each about a micron across."
+    },
+    {
+     "start": 15.891,
+     "end": 18.561,
+     "text": "A human hair would cover dozens of them."
+    },
+    {
+     "start": 18.874,
+     "end": 23.286,
+     "text": "Each cell is a photodiode, a tiny well of silicon."
+    },
+    {
+     "start": 23.483,
+     "end": 27.559,
+     "text": "When a particle of light, a photon, strikes the silicon,"
+    },
+    {
+     "start": 27.756,
+     "end": 31.587,
+     "text": "it knocks an electron loose, and the well holds on to it."
+    },
+    {
+     "start": 31.959,
+     "end": 34.64,
+     "text": "More photons, more electrons."
+    },
+    {
+     "start": 35.07,
+     "end": 36.8,
+     "text": "That's all a pixel is:"
+    },
+    {
+     "start": 36.951,
+     "end": 37.81,
+     "text": "a counter."
+    },
+    {
+     "start": 38.077,
+     "end": 39.215,
+     "text": "But there's a catch."
+    },
+    {
+     "start": 39.459,
+     "end": 43.046,
+     "text": "Silicon can count light, but it can't tell what colour it was."
+    },
+    {
+     "start": 43.371,
+     "end": 47.934,
+     "text": "A red photon and a blue photon leave the same electron behind."
+    },
+    {
+     "start": 48.247,
+     "end": 52.799,
+     "text": "So every well gets a filter on top, red, green, or blue,"
+    },
+    {
+     "start": 52.927,
+     "end": 55.191,
+     "text": "that only lets its own colour through."
+    },
+    {
+     "start": 55.469,
+     "end": 58.407,
+     "text": "And above that, a tiny dome of a lens,"
+    },
+    {
+     "start": 58.534,
+     "end": 63.666,
+     "text": "that funnels light down into the well instead of letting it spill onto the wiring."
+    },
+    {
+     "start": 64.351,
+     "end": 65.442,
+     "text": "Look at the pattern."
+    },
+    {
+     "start": 65.64,
+     "end": 71.236,
+     "text": "In every block of four, there's one red, one blue, and two green."
+    },
+    {
+     "start": 71.608,
+     "end": 73.349,
+     "text": "That isn't a mistake."
+    },
+    {
+     "start": 73.721,
+     "end": 76.263,
+     "text": "Your eyes are most sensitive to green light,"
+    },
+    {
+     "start": 76.402,
+     "end": 79.595,
+     "text": "and it's where you pick up most of the brightness and detail,"
+    },
+    {
+     "start": 79.769,
+     "end": 82.544,
+     "text": "so the sensor spends half its pixels there."
+    },
+    {
+     "start": 83.044,
+     "end": 84.565,
+     "text": "Here's the way to picture it."
+    },
+    {
+     "start": 85.006,
+     "end": 89.209,
+     "text": "Imagine millions of buckets, set out in a rainstorm."
+    },
+    {
+     "start": 89.58,
+     "end": 91.751,
+     "text": "Every photon is a raindrop."
+    },
+    {
+     "start": 92.192,
+     "end": 96.453,
+     "text": "When the shutter closes, you measure how much water is in each bucket."
+    },
+    {
+     "start": 96.952,
+     "end": 99.669,
+     "text": "In dim light, only a few drops fall,"
+    },
+    {
+     "start": 99.844,
+     "end": 102.874,
+     "text": "and it's down to luck which buckets they land in."
+    },
+    {
+     "start": 103.152,
+     "end": 105.834,
+     "text": "One gets five, its neighbour gets two."
+    },
+    {
+     "start": 106.206,
+     "end": 109.967,
+     "text": "That randomness is the grain you see in night photos."
+    },
+    {
+     "start": 110.165,
+     "end": 113.102,
+     "text": "In bright light, you get the opposite problem."
+    },
+    {
+     "start": 113.474,
+     "end": 118.071,
+     "text": "The bucket fills to the brim and overflows, and once it's full,"
+    },
+    {
+     "start": 118.152,
+     "end": 120.764,
+     "text": "it can't tell bright from blinding."
+    },
+    {
+     "start": 121.263,
+     "end": 123.202,
+     "text": "That's a blown-out sky."
+    },
+    {
+     "start": 123.644,
+     "end": 128.926,
+     "text": "When the exposure ends, each bucket is measured, and turned into a number."
+    },
+    {
+     "start": 129.298,
+     "end": 130.923,
+     "text": "Millions of numbers."
+    },
+    {
+     "start": 131.202,
+     "end": 134.023,
+     "text": "And that's what leaves the sensor."
+    }
+   ]
+  },
+  {
+   "id": "isp",
+   "label": "Chapter 4",
+   "title": "Why the Raw Image Looks Terrible",
+   "file": "audio/isp.mp3",
+   "start": 431.34,
+   "duration": 137.236,
+   "audio": 135.236,
+   "cues": {
+    "raw": 0.6,
+    "mosaic": 5.488,
+    "demosaic": 35.802,
+    "fill": 44.161,
+    "wb": 75.614,
+    "denoise": 102.525,
+    "done": 121.182
+   },
+   "captions": [
+    {
+     "start": 0.6,
+     "end": 3.166,
+     "text": "So what does the sensor actually hand over?"
+    },
+    {
+     "start": 3.363,
+     "end": 4.222,
+     "text": "Not a photo."
+    },
+    {
+     "start": 4.315,
+     "end": 5.36,
+     "text": "Not even close."
+    },
+    {
+     "start": 5.488,
+     "end": 7.16,
+     "text": "This is the raw frame."
+    },
+    {
+     "start": 7.264,
+     "end": 8.17,
+     "text": "It's dark."
+    },
+    {
+     "start": 8.239,
+     "end": 9.168,
+     "text": "It's grainy."
+    },
+    {
+     "start": 9.273,
+     "end": 13.964,
+     "text": "And it has no colour at all, just a brightness reading for every pixel,"
+    },
+    {
+     "start": 14.138,
+     "end": 19.304,
+     "text": "laid out in a checkerboard, where each square only knows about one of red, green,"
+    },
+    {
+     "start": 19.374,
+     "end": 20.314,
+     "text": "or blue."
+    },
+    {
+     "start": 20.813,
+     "end": 25.678,
+     "text": "Two thirds of the colour information in the final picture was never recorded."
+    },
+    {
+     "start": 26.05,
+     "end": 27.628,
+     "text": "It has to be worked out."
+    },
+    {
+     "start": 28.07,
+     "end": 31.379,
+     "text": "That job belongs to the image signal processor,"
+    },
+    {
+     "start": 31.483,
+     "end": 35.117,
+     "text": "a block of the phone's main chip that does nothing else."
+    },
+    {
+     "start": 35.802,
+     "end": 41.665,
+     "text": "First, it pulls the mosaic apart into three sheets, red, green, and blue,"
+    },
+    {
+     "start": 41.862,
+     "end": 43.72,
+     "text": "each one full of holes."
+    },
+    {
+     "start": 44.161,
+     "end": 45.903,
+     "text": "Then it fills the holes."
+    },
+    {
+     "start": 46.402,
+     "end": 48.899,
+     "text": "For a pixel that only measured green,"
+    },
+    {
+     "start": 49.026,
+     "end": 51.952,
+     "text": "it looks at the red neighbours on either side,"
+    },
+    {
+     "start": 52.01,
+     "end": 54.831,
+     "text": "and estimates the red it would have seen."
+    },
+    {
+     "start": 55.76,
+     "end": 58.709,
+     "text": "It's an educated guess, but a careful one:"
+    },
+    {
+     "start": 58.906,
+     "end": 63.132,
+     "text": "the processor looks for edges, and avoids blending across them,"
+    },
+    {
+     "start": 63.26,
+     "end": 67.986,
+     "text": "so that a sharp line stays sharp, instead of growing coloured fringes."
+    },
+    {
+     "start": 68.473,
+     "end": 71.26,
+     "text": "This step is called demosaicing,"
+    },
+    {
+     "start": 71.388,
+     "end": 75.126,
+     "text": "and it happens for every one of those millions of pixels."
+    },
+    {
+     "start": 75.614,
+     "end": 77.007,
+     "text": "Next, colour."
+    },
+    {
+     "start": 77.494,
+     "end": 82.498,
+     "text": "The sensor has no idea that the streetlamp is orange and the shade is blue."
+    },
+    {
+     "start": 82.986,
+     "end": 85.807,
+     "text": "Your brain corrects for that automatically."
+    },
+    {
+     "start": 86.364,
+     "end": 90.068,
+     "text": "A white shirt looks white to you almost anywhere."
+    },
+    {
+     "start": 90.497,
+     "end": 95.037,
+     "text": "So the processor has to do the same, estimating the colour of the light,"
+    },
+    {
+     "start": 95.06,
+     "end": 99.46,
+     "text": "and scaling the three channels until neutral things look neutral."
+    },
+    {
+     "start": 100.017,
+     "end": 101.631,
+     "text": "That's white balance."
+    },
+    {
+     "start": 102.525,
+     "end": 104.208,
+     "text": "Then, the grain."
+    },
+    {
+     "start": 104.684,
+     "end": 108.237,
+     "text": "The processor compares each pixel with its surroundings,"
+    },
+    {
+     "start": 108.504,
+     "end": 111.952,
+     "text": "works out what's real detail and what's random speckle,"
+    },
+    {
+     "start": 112.126,
+     "end": 116.677,
+     "text": "and smooths away the speckle, while trying to leave the texture alone."
+    },
+    {
+     "start": 117.234,
+     "end": 120.706,
+     "text": "Then tone, contrast, and sharpening."
+    },
+    {
+     "start": 121.182,
+     "end": 123.957,
+     "text": "And only now does it look like a photograph."
+    },
+    {
+     "start": 124.305,
+     "end": 129.378,
+     "text": "Every one of these steps runs on every frame, thirty or sixty times a second,"
+    },
+    {
+     "start": 129.541,
+     "end": 131.503,
+     "text": "just to draw the viewfinder."
+    },
+    {
+     "start": 132.269,
+     "end": 135.787,
+     "text": "But at night, even this isn't enough."
+    }
+   ]
+  },
+  {
+   "id": "stack",
+   "label": "Chapter 5",
+   "title": "How Silicon Cheats Darkness",
+   "file": "audio/stack.mp3",
+   "start": 568.576,
+   "duration": 126.787,
+   "audio": 124.787,
+   "cues": {
+    "problem": 0.6,
+    "buffer": 20.789,
+    "tap": 41.049,
+    "align": 60.844,
+    "fuse": 82.497,
+    "final": 112.532
+   },
+   "captions": [
+    {
+     "start": 0.6,
+     "end": 1.61,
+     "text": "Here's the limit."
+    },
+    {
+     "start": 2.109,
+     "end": 6.544,
+     "text": "A sensor the size of a fingernail simply can't collect much light in one go."
+    },
+    {
+     "start": 7.229,
+     "end": 11.467,
+     "text": "Leave the shutter open longer, and anything that moves turns to blur."
+    },
+    {
+     "start": 11.746,
+     "end": 16.923,
+     "text": "Turn up the amplification, and you amplify the noise right along with the picture."
+    },
+    {
+     "start": 17.713,
+     "end": 20.418,
+     "text": "One exposure is always a compromise."
+    },
+    {
+     "start": 20.789,
+     "end": 22.461,
+     "text": "So the phone doesn't take one."
+    },
+    {
+     "start": 22.96,
+     "end": 28.243,
+     "text": "From the moment you open the camera, it's already shooting, frame after frame,"
+    },
+    {
+     "start": 28.475,
+     "end": 34.28,
+     "text": "into a small rolling buffer, keeping the last few and throwing the oldest away."
+    },
+    {
+     "start": 35.07,
+     "end": 40.735,
+     "text": "Many of them are short exposures, that freeze motion and protect the highlights."
+    },
+    {
+     "start": 41.049,
+     "end": 44.869,
+     "text": "When you tap the shutter, you're not really taking a picture."
+    },
+    {
+     "start": 45.147,
+     "end": 47.852,
+     "text": "You're telling the phone which moment you meant."
+    },
+    {
+     "start": 48.224,
+     "end": 50.859,
+     "text": "It keeps the frames around that instant,"
+    },
+    {
+     "start": 50.929,
+     "end": 55.375,
+     "text": "and adds a longer exposure to dig detail out of the shadows."
+    },
+    {
+     "start": 55.689,
+     "end": 60.402,
+     "text": "In very dark scenes, it keeps collecting for a second or more."
+    },
+    {
+     "start": 60.844,
+     "end": 66.219,
+     "text": "Now it has a stack of frames of the same scene, and none of them quite line up,"
+    },
+    {
+     "start": 66.417,
+     "end": 69.621,
+     "text": "because your hand moved, and so did the world."
+    },
+    {
+     "start": 69.993,
+     "end": 75.066,
+     "text": "So the chip aligns them, shifting and warping each one, patch by patch,"
+    },
+    {
+     "start": 75.159,
+     "end": 78.154,
+     "text": "until every edge sits on top of itself."
+    },
+    {
+     "start": 78.596,
+     "end": 82.299,
+     "text": "Anything that moved too much to match gets left out."
+    },
+    {
+     "start": 82.497,
+     "end": 83.774,
+     "text": "Then they're merged."
+    },
+    {
+     "start": 84.215,
+     "end": 90.066,
+     "text": "The scene is the same in every frame, but the noise is random, different every time."
+    },
+    {
+     "start": 90.566,
+     "end": 96.081,
+     "text": "Average the frames, and the picture reinforces itself, while the noise cancels out."
+    },
+    {
+     "start": 96.766,
+     "end": 99.715,
+     "text": "Nine frames, about a third of the noise."
+    },
+    {
+     "start": 99.993,
+     "end": 103.151,
+     "text": "Machine learning models, running on the neural engine,"
+    },
+    {
+     "start": 103.279,
+     "end": 106.472,
+     "text": "decide pixel by pixel which frame to trust:"
+    },
+    {
+     "start": 106.669,
+     "end": 112.033,
+     "text": "the short ones for highlights, the long one for shadows, the sharpest for texture."
+    },
+    {
+     "start": 112.532,
+     "end": 118.001,
+     "text": "The result is a photo that no single exposure from this sensor could have produced."
+    },
+    {
+     "start": 118.314,
+     "end": 120.021,
+     "text": "It's not faking the scene."
+    },
+    {
+     "start": 120.218,
+     "end": 125.338,
+     "text": "It's measuring it many times, and keeping the best of every measurement."
+    }
+   ]
+  },
+  {
+   "id": "outro",
+   "label": "Outro",
+   "title": "One Tap, Billions of Operations",
+   "file": "audio/outro.mp3",
+   "start": 695.363,
+   "duration": 49.491,
+   "audio": 47.491,
+   "cues": {
+    "pull": 0.6,
+    "prism": 8.483,
+    "phone": 15.624,
+    "ask": 34.756
+   },
+   "captions": [
+    {
+     "start": 0.6,
+     "end": 1.726,
+     "text": "So pull back."
+    },
+    {
+     "start": 2.098,
+     "end": 6.045,
+     "text": "Out of the silicon wells, where photons became electrons."
+    },
+    {
+     "start": 6.486,
+     "end": 8.251,
+     "text": "Up through the colour filters."
+    },
+    {
+     "start": 8.483,
+     "end": 12.64,
+     "text": "Back through the glass that folded a telephoto lens into a sliver,"
+    },
+    {
+     "start": 12.814,
+     "end": 15.31,
+     "text": "past the sensor floating on its magnets."
+    },
+    {
+     "start": 15.624,
+     "end": 19.223,
+     "text": "Out through the sapphire, and back to the thing in your hand."
+    },
+    {
+     "start": 19.664,
+     "end": 20.523,
+     "text": "One tap."
+    },
+    {
+     "start": 20.802,
+     "end": 26.421,
+     "text": "A beam folded four times, a sensor steadied thousands of times a second,"
+    },
+    {
+     "start": 26.549,
+     "end": 31.68,
+     "text": "tens of millions of buckets counted, and billions of calculations,"
+    },
+    {
+     "start": 31.877,
+     "end": 34.524,
+     "text": "all in about the time it takes you to blink."
+    },
+    {
+     "start": 34.756,
+     "end": 36.312,
+     "text": "That's one camera."
+    },
+    {
+     "start": 36.417,
+     "end": 39.656,
+     "text": "There's a lot more hardware hiding in plain sight."
+    },
+    {
+     "start": 39.888,
+     "end": 41.572,
+     "text": "So tell me in the comments:"
+    },
+    {
+     "start": 41.804,
+     "end": 43.789,
+     "text": "what should we take apart next?"
+    },
+    {
+     "start": 43.986,
+     "end": 45.728,
+     "text": "This is Deep Teardown."
+    },
+    {
+     "start": 45.902,
+     "end": 48.062,
+     "text": "I'll see you inside the next one."
+    }
+   ]
+  }
+ ],
+ "duration": 744.854
+}
