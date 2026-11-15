@@ -75,10 +75,9 @@ Asset sources are listed in [`assets/CREDITS.md`](assets/CREDITS.md).
 Reworked after studying the reference film on `main`: a stakes-first cold open, short shots, bold on-screen
 headlines, real footage and a roadmap.
 
-- `src/direction.js` — the edit. Per chapter: inserts (real iPhone 18 Pro footage from `assets/clips/`, 2D cards,
+- `src/direction.js` — the edit. Per chapter: inserts (hero shots of our own lens and phone models, 2D cards,
   peeks into other scenes), headlines and tags, and how often the 3D camera cuts. Times are relative to narration cues.
 - `src/ui.js` — the cards (sensor size, noisy/clean photo simulation, frame merge, roadmap, title, sources) and typography.
 - `tools/mix_audio.py` — mixes narration + `audio/music/*` + `audio/sfx/*` into `audio/mix.mp3`, which the renderer muxes.
 - Music and effects were generated with ElevenLabs; fonts are Barlow Condensed, Manrope and JetBrains Mono (OFL).
-- The clips in `assets/clips/` are cut from Apple's iPhone 18 Pro film supplied in this repo; check you are happy
-  with that use before publishing.
+- No third-party footage is used: every moving image is our own 3D or a simulation on the CC0 night photograph.

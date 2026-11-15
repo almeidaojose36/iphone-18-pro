@@ -17,7 +17,7 @@ import { build as photo } from './scenes/photodiodes.js';
 import { build as isp } from './scenes/isp.js';
 import { build as stack } from './scenes/stack.js';
 import { direction } from './direction.js';
-import { initUI, drawClip, drawCard, drawText, showLayer } from './ui.js';
+import { initUI, drawCard, drawText, showLayer } from './ui.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -130,19 +130,21 @@ function draw() {
   const i0 = chapterAt(T), plan = plans[i0], lt0 = T - chapters[i0].start;
   const ins = plan.ins.find((k) => lt0 >= k.t && lt0 < k.t + k.d);
   drawText(plan.text, lt0);
-  if (ins && !ins.peek) {
-    showLayer(ins.clip ? 'clip' : 'card');
-    if (ins.clip) drawClip(ins, lt0 - ins.t); else drawCard(ins, lt0 - ins.t, chapters[i0]);
+  if (ins && ins.card) {
+    showLayer('card');
+    drawCard(ins, lt0 - ins.t, chapters[i0]);
     if (active) for (const l of active.labels) l.el.style.opacity = 0;
-    const d0 = Math.min(lt0, chapters[i0].duration - lt0);
-    $('fade').style.opacity = 1 - clamp01(d0 / FADE);
+    $('fade').style.opacity = 1 - clamp01(Math.min(lt0, chapters[i0].duration - lt0) / FADE);
     tail(i0, chapters[i0], lt0);
     return;
   }
   showLayer(null);
   let { sc, i, ch, lt, fade } = resolve(T);
-  if (ins) { sc = S[ins.peek]; sc.update(ins.at + lt - ins.t, allCues[ins.peek], 1e3); fade = 1 - clamp01(Math.min(lt, ch.duration - lt) / FADE); }
-  else { const cut = plan.cuts.findLast((k) => lt >= k.t); if (cut) cutCamera(sc.camera, cut, lt, plan.soft); }
+  if (ins) {
+    if (ins.shot) { sc = S.hook; sc.shot(ins.shot, (lt - ins.t) / ins.d, lt - ins.t); }
+    else { sc = S[ins.peek]; sc.update(ins.at + lt - ins.t, allCues[ins.peek], 1e3); }
+    fade = 1 - clamp01(Math.min(lt, ch.duration - lt) / FADE);
+  } else { const cut = plan.cuts.findLast((k) => lt >= k.t); if (cut) cutCamera(sc.camera, cut, lt, plan.soft); }
   if (active !== sc) { if (active) for (const l of active.labels) l.el.style.opacity = 0; active = sc; }
   const w = stageEl.clientWidth, h = stageEl.clientHeight;
   sc.camera.aspect = 16 / 9; sc.camera.updateProjectionMatrix(); sc.camera.updateMatrixWorld();

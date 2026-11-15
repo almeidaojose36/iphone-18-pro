@@ -9,33 +9,12 @@ const GOLD = '#dcb46c', INK = '#f1ede4', DIM = '#8d8a82', BG = '#06090e';
 const F_HEAD = '"Barlow Condensed", "Arial Narrow", sans-serif', F_SUB = 'Manrope, Arial, sans-serif', F_MONO = '"JetBrains Mono", monospace';
 
 const $ = (id) => document.getElementById(id);
-let clipC, cardC, cx, kx;
-const clips = {};
-const CLIPS = { beam: 60, macro: 54, smoke: 46, side: 46, chip: 41, rear: 31, frame: 77, thin: 48 };
+let cardC, cx;
 
 export async function initUI() {
-  clipC = $('clip'); cardC = $('card');
-  kx = clipC.getContext('2d'); cx = cardC.getContext('2d');
+  cardC = $('card');
+  cx = cardC.getContext('2d');
   await Promise.all([`700 40px ${F_HEAD}`, `600 40px ${F_HEAD}`, `500 20px ${F_SUB}`, `500 20px ${F_MONO}`].map((f) => document.fonts.load(f)));
-  const jobs = [];
-  for (const [name, n] of Object.entries(CLIPS)) {
-    clips[name] = [];
-    for (let i = 1; i <= n; i++) {
-      const im = new Image();
-      im.src = `assets/clips/${name}/${String(i).padStart(3, '0')}.jpg`;
-      clips[name].push(im); jobs.push(im.decode().catch(() => {}));
-    }
-  }
-  await Promise.all(jobs);
-}
-
-// ---------- real footage ----------
-export function drawClip(ins, lt) {
-  const fr = clips[ins.clip], f = Math.min(fr.length - 1, Math.max(0, Math.floor(lt * 24 * (ins.rate || 1))));
-  const z = 1 + 0.035 * clamp01(lt / ins.d);            // slow push-in so held frames never feel frozen
-  kx.setTransform(z, 0, 0, z, 640 * (1 - z), 360 * (1 - z));
-  kx.drawImage(fr[f], 0, 0, 1280, 720);
-  kx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
 // ---------- cards ----------
@@ -43,6 +22,15 @@ const cache = {};
 const memo = (k, f) => cache[k] || (cache[k] = f());
 const darkFrames = () => memo('dark', () => [1, 2, 3, 4, 5].map((s) => photoCanvas(960, 540, { gain: 0.34, noise: 0.2, seed: s * 7, cast: [0.92, 0.97, 1.12] })));
 const goodFrame = () => memo('good', () => photoCanvas(1920, 1080, {}));
+const variant = (o, w = 960, h = 540) => memo(JSON.stringify([o, w, h]), () => o.mosaic ? mosaic() : photoCanvas(w, h, o));
+function mosaic() {
+  const w = 240, h = 135, c = photoCanvas(w, h, { gain: 1.1 }), g = c.getContext('2d'), id = g.getImageData(0, 0, w, h), d = id.data;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4, k = (y % 2) * 2 + (x % 2), keep = k === 0 ? 0 : k === 3 ? 2 : 1;
+    for (let q = 0; q < 3; q++) if (q !== keep) d[i + q] = 0;
+  }
+  g.putImageData(id, 0, 0); return c;
+}
 const mergeFrames = () => memo('merge', () => {
   const w = 192, h = 120, acc = new Float32Array(w * h * 4), out = [];
   for (let n = 1; n <= 9; n++) {
@@ -186,12 +174,11 @@ const CARDS = {
     const a = ramp(t, 0, 0.8);
     txt('SOURCES & CREDITS', 150, 200, `700 60px ${F_HEAD}`, GOLD, 'left', a, 3);
     const L = [
-      ['FACTS FROM', 'Apple (tetraprism telephoto, sensor-shift stabilisation, Photonic Engine) · Yole Group teardown reports'],
+      ['FACTS FROM', 'Apple (published descriptions of the tetraprism telephoto and sensor-shift stabilisation) · Yole Group teardown reports'],
       ['', 'Sony Semiconductor Solutions · Google Research (HDR+, burst photography)'],
-      ['IPHONE 18 PRO FOOTAGE', 'Apple'],
       ['NIGHT PHOTOGRAPH', 'Greg Zaal and Rico Cilliers, Poly Haven (CC0) · every grainy version is our simulation on it'],
       ['STUDIO LIGHTING', 'Studio Small 08, Poly Haven (CC0)'],
-      ['3D', 'our own models · illustrations of typical designs, not to scale'],
+      ['3D', 'every model and animation is our own · illustrations of typical designs, not to scale'],
       ['VOICE · MUSIC · SOUND', 'generated with ElevenLabs'],
     ];
     let y = 300;
@@ -202,6 +189,131 @@ const CARDS = {
     txt('DEEP TEARDOWN · 2026', 150, 1010, `600 34px ${F_HEAD}`, DIM, 'left', a, 6);
   },
 };
+
+const jit = (t) => [Math.sin(t * 7.1) + 0.6 * Math.sin(t * 13.3 + 1), Math.sin(t * 9.7) + 0.5 * Math.sin(t * 15.1)];
+function boxLabel(s, x, y, col = INK, align = 'left') {
+  cx.font = `500 30px ${F_MONO}`; cx.letterSpacing = '3px';
+  const w = cx.measureText(s).width + 76, x0 = align === 'right' ? x - w : x;
+  cx.fillStyle = 'rgba(8,11,16,0.82)'; cx.beginPath(); cx.roundRect(x0, y, w, 62, 8); cx.fill();
+  cx.fillStyle = GOLD; cx.fillRect(x0 + 22, y + 24, 14, 14);
+  cx.fillStyle = col; cx.textAlign = 'left'; cx.fillText(s, x0 + 52, y + 42); cx.letterSpacing = '0px';
+}
+
+Object.assign(CARDS, {
+  // hand tremble: invisible on a wide shot, a smear once you zoom in
+  shake(t, ins) {
+    const g = goodFrame(), zt = ramp(t, ins.zoom, ins.zoom + 0.7), z = 1 + 4.2 * zt, [jx, jy] = jit(t);
+    const fx = 0.74 * W, fy = 0.16 * H, amp = 2.2 * z;
+    cx.fillStyle = '#000'; cx.fillRect(0, 0, W, H);
+    const n = zt > 0.5 ? 6 : 1;
+    for (let k = 0; k < n; k++) {
+      const [qx, qy] = jit(t - k * 0.012);
+      cx.globalAlpha = 1 / (k + 1);
+      cx.save(); cx.translate(W / 2 + qx * amp, H / 2 + qy * amp); cx.scale(z, z); cx.translate(-(W / 2 + (fx - W / 2) * zt), -(H / 2 + (fy - H / 2) * zt));
+      cx.drawImage(g, 0, 0, W, H); cx.restore();
+    }
+    cx.globalAlpha = 1; vignette();
+    boxLabel(zt < 0.5 ? 'WIDE SHOT · THE TREMBLE IS INVISIBLE' : 'ZOOMED IN · THE SAME TREMBLE', 110, 930);
+    void jx; void jy;
+  },
+
+  expose(t, ins) {
+    const p = ramp(t, 0.6, ins.d - 1.4), steps = ['1/60', '1/30', '1/15', '1/8'], k = Math.min(3, Math.floor(p * 3.999));
+    cx.drawImage(goodFrame(), 0, 0, W, H);
+    cx.fillStyle = `rgba(0,0,0,${0.82 * (1 - p)})`; cx.fillRect(0, 0, W, H);
+    vignette();
+    mono('SHUTTER OPEN FOR', 110, 800, 1, GOLD, 24);
+    txt(steps[k] + ' s', 110, 930, `700 150px ${F_HEAD}`, INK, 'left', 1, 2);
+    cx.fillStyle = 'rgba(241,237,228,0.25)'; cx.fillRect(110, 970, 700, 6); cx.fillStyle = GOLD; cx.fillRect(110, 970, 700 * (0.125 + 0.875 * p), 6);
+    mono('LIGHT COLLECTED', 830, 980, 1, DIM, 20);
+  },
+
+  hair(t) {
+    bg();
+    const s = 11;
+    cx.strokeStyle = 'rgba(220,180,108,0.22)'; cx.lineWidth = 1; cx.beginPath();
+    for (let x = 0; x <= W; x += s) { cx.moveTo(x, 0); cx.lineTo(x, H); }
+    for (let y = 0; y <= H; y += s) { cx.moveTo(0, y); cx.lineTo(W, y); }
+    cx.stroke();
+    cx.fillStyle = GOLD; cx.fillRect(110 - (110 % s), 198 - (198 % s), s, s);
+    const p = ramp(t, 0.3, 1.5);
+    cx.save(); cx.translate(W * 0.62, H / 2); cx.rotate(-0.42);
+    const g = cx.createLinearGradient(0, -385, 0, 385);
+    g.addColorStop(0, '#1b120b'); g.addColorStop(0.3, '#6a4a2c'); g.addColorStop(0.55, '#8a6238'); g.addColorStop(1, '#140d08');
+    cx.fillStyle = g; cx.fillRect(-1600, -385, 3200 * p, 770); cx.restore();
+    boxLabel('ONE PIXEL ≈ 1 µm', 140, 170);
+    boxLabel('ONE HUMAN HAIR ≈ 70 µm ACROSS', 110, 930);
+  },
+
+  hallway(t, ins) {
+    bg();
+    const p = ramp(t, 0.8, ins.d - 1.2), L = 1500, x0 = 210;
+    mono('A LONG HALLWAY', x0, 250, 1, GOLD, 32);
+    cx.strokeStyle = '#5d5546'; cx.lineWidth = 2; cx.strokeRect(x0, 280, L, 70);
+    cx.fillStyle = GOLD; cx.fillRect(x0, 313, L * p, 4);
+    cx.fillStyle = INK; cx.beginPath(); cx.arc(x0 + L * p, 315, 13, 0, 7); cx.fill();
+    mono('A CLOSET, LINED WITH MIRRORS', x0, 480, 1, GOLD, 32);
+    const bw = 520, bh = 400, by = 520, n = 7, seg = Math.hypot(bw / n, bh);
+    cx.strokeStyle = INK; cx.lineWidth = 3; cx.strokeRect(x0, by, bw, bh);
+    const pt = (u) => { const k = Math.min(n - 1, Math.floor(u * n)), f = u * n - k, up = k % 2; return [x0 + (k + f) * bw / n, by + (up ? 1 - f : f) * bh]; };
+    cx.strokeStyle = GOLD; cx.lineWidth = 4; cx.beginPath(); cx.moveTo(x0, by);
+    for (let u = 0; u <= p; u += 0.004) cx.lineTo(...pt(u));
+    cx.stroke();
+    const [rx, ry] = pt(p); cx.fillStyle = INK; cx.beginPath(); cx.arc(rx, ry, 13, 0, 7); cx.fill();
+    txt('SAME DISTANCE', 880, 720, `700 120px ${F_HEAD}`, INK, 'left', ramp(t, 1.5, 2.2), 2);
+    txt(`${Math.round(p * 100)} %  covered in both`, 884, 790, `500 34px ${F_SUB}`, DIM, 'left', ramp(t, 1.5, 2.2));
+    void seg;
+  },
+
+  wipe(t, ins) {
+    const a = variant(ins.a), b = variant(ins.b), x = W * ramp(t, ins.at ?? 1.2, (ins.at ?? 1.2) + 2.4);
+    cx.imageSmoothingEnabled = !ins.a.mosaic; cx.drawImage(a, 0, 0, W, H);
+    cx.save(); cx.beginPath(); cx.rect(0, 0, x, H); cx.clip(); cx.imageSmoothingEnabled = !ins.b.mosaic; cx.drawImage(b, 0, 0, W, H); cx.restore();
+    cx.imageSmoothingEnabled = true;
+    cx.fillStyle = GOLD; cx.fillRect(x - 2, 0, 4, H); vignette();
+    if (x < W - 500) boxLabel(ins.la, W - 110, 930, INK, 'right');
+    if (x > 520) boxLabel(ins.lb, 110, 930, INK);
+  },
+
+  // stabiliser off / on: the same zoomed crop, one trembling, one held still
+  steady(t) {
+    const g = goodFrame(), z = 4.6, fx = 0.74 * W, fy = 0.16 * H;
+    cx.fillStyle = '#000'; cx.fillRect(0, 0, W, H);
+    [[0, 26, 'STABILISER OFF'], [962, 1.2, 'STABILISER ON']].forEach(([x0, amp, lab]) => {
+      cx.save(); cx.beginPath(); cx.rect(x0, 0, 958, H); cx.clip();
+      const n = amp > 5 ? 6 : 1;
+      for (let k = 0; k < n; k++) {
+        const [qx, qy] = jit(t - k * 0.012);
+        cx.globalAlpha = 1 / (k + 1);
+        cx.save(); cx.translate(x0 + 479 + qx * amp, H / 2 + qy * amp); cx.scale(z, z); cx.translate(-fx, -fy); cx.drawImage(g, 0, 0, W, H); cx.restore();
+      }
+      cx.restore(); cx.globalAlpha = 1;
+      boxLabel(lab, x0 + 70, 60, amp > 5 ? INK : GOLD);
+    });
+    cx.fillStyle = GOLD; cx.fillRect(958, 0, 4, H);
+  },
+
+  buffer(t) {
+    bg();
+    const fr = darkFrames(), tw = 330, th = 186, gap = 40, y = 420, off = (t * 150) % (tw + gap);
+    mono('THE ROLLING BUFFER · FRAMES KEEP ARRIVING', 110, 350, 1, GOLD, 30);
+    for (let i = -1; i < 6; i++) {
+      const x = 110 + i * (tw + gap) + (tw + gap) - off, k = ((i - Math.floor(t * 150 / (tw + gap))) % 5 + 5) % 5;
+      cx.globalAlpha = clamp01((x + tw - 80) / 200) * clamp01((W - 60 - x) / 200);
+      cx.drawImage(fr[k], x, y, tw, th); cx.strokeStyle = 'rgba(241,237,228,0.5)'; cx.lineWidth = 2; cx.strokeRect(x, y, tw, th);
+    }
+    cx.globalAlpha = 1;
+    mono('← OLDEST · THROWN AWAY', 110, 690, 1, DIM, 28); mono('NEWEST →', W - 110, 690, 1, INK, 28, 'right');
+  },
+
+  align(t) {
+    const a = variant({ gain: 0.95, noise: 0.22, seed: 3 }), b = variant({ gain: 0.95, noise: 0.22, seed: 9 }), q = 1 - ramp(t, 1.2, 4.2);
+    cx.drawImage(a, 0, 0, W, H);
+    cx.globalAlpha = 0.5; cx.save(); cx.translate(W / 2 + 74 * q, H / 2 - 40 * q); cx.rotate(0.022 * q); cx.drawImage(b, -W / 2, -H / 2, W, H); cx.restore(); cx.globalAlpha = 1;
+    vignette();
+    boxLabel(q > 0.02 ? 'TWO FRAMES · YOUR HAND MOVED BETWEEN THEM' : 'ALIGNED', 110, 930, q > 0.02 ? INK : GOLD);
+  },
+});
 
 function icon(i, x, y, col) {
   cx.strokeStyle = col; cx.lineWidth = 3; cx.beginPath();
@@ -223,10 +335,7 @@ function vignette() {
 export function drawCard(ins, lt, ch) { cx.setTransform(1, 0, 0, 1, 0, 0); CARDS[ins.card](lt, ins, ch); }
 
 /** Show the right 2D layer: 'clip', 'card' or none. */
-export function showLayer(kind) {
-  clipC.style.display = kind === 'clip' ? 'block' : 'none';
-  cardC.style.display = kind === 'card' ? 'block' : 'none';
-}
+export function showLayer(kind) { cardC.style.display = kind === 'card' ? 'block' : 'none'; }
 
 // ---------- typography ----------
 export function drawText(items, lt) {

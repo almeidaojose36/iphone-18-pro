@@ -11,5 +11,4 @@ Brushed metal, PCB, silicon wafer and sensor textures are generated procedurally
 
 ## Added for the version 2 edit
 - `fonts/` — Barlow Condensed, Manrope, JetBrains Mono (SIL Open Font License), via Fontsource.
-- `clips/` — short frame sequences cut from Apple's iPhone 18 Pro film (the `.mp4` files at the repo root). © Apple.
 - `../audio/music`, `../audio/sfx` — generated with ElevenLabs for this video.

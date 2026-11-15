@@ -19,9 +19,14 @@ export function build() {
   const chrome = new THREE.MeshStandardMaterial({ color: 0xd4d8de, metalness: 1, roughness: 0.14, side: DS });
   const rubber = new THREE.MeshStandardMaterial({ color: 0x0c0d10, metalness: 0, roughness: 0.88, side: DS });
   const inner = new THREE.MeshStandardMaterial({ color: 0x08090b, metalness: 0.2, roughness: 0.9, side: DS });
+  // the missing arc, so the barrel can be shown closed and then opened up
+  const cover = new THREE.Group(); tube.add(cover);
+  const cm = new Map(), coverMat = (m) => cm.get(m) || (cm.set(m, m.clone()), cm.get(m));
   const shell = (r0, r1, y0, y1, mat, wall = 0.022) => {
     const m = new THREE.Mesh(latheRing([[r0, y0], [r1, y1], [r1 - wall, y1], [r0 - wall, y0]], 96, P0, PL), mat);
-    tube.add(m); return m;
+    tube.add(m);
+    cover.add(new THREE.Mesh(latheRing([[r0, y0], [r1, y1], [r1 - wall, y1], [r0 - wall, y0]], 64, P0 + PL, Math.PI * 2 - PL), coverMat(mat)));
+    return m;
   };
   // mount: bayonet + flange (bright metal), then the barrel sections
   shell(0.25, 0.25, -1.4, -1.33, chrome, 0.03);
@@ -37,6 +42,9 @@ export function build() {
   const zoomRing = new THREE.Mesh(ribbedRing(0.395, 0.66, 64, 0.016, P0, PL), rubber); zoomRing.position.y = -0.45;
   const focusRing = new THREE.Mesh(ribbedRing(0.45, 0.56, 120, 0.01, P0, PL), rubber); focusRing.position.y = 0.46;
   tube.add(zoomRing, focusRing);
+  const zc = new THREE.Mesh(ribbedRing(0.395, 0.66, 40, 0.016, P0 + PL, Math.PI * 2 - PL), coverMat(rubber)); zc.position.y = -0.45;
+  const fc = new THREE.Mesh(ribbedRing(0.45, 0.56, 76, 0.01, P0 + PL, Math.PI * 2 - PL), coverMat(rubber)); fc.position.y = 0.46;
+  cover.add(zc, fc);
   const red = new THREE.Mesh(new THREE.TorusGeometry(0.503, 0.011, 8, 96, PL), new THREE.MeshBasicMaterial({ color: 0xff3b30 }));
   red.rotation.set(Math.PI / 2, 0, Math.PI / 2 - P0 - PL); red.position.y = 1.22;
   tube.add(red);
@@ -127,6 +135,16 @@ export function build() {
   const lamp = glow(COL.gold, 7); lamp.position.copy(lampPos);
   scene.add(lamp);
 
+  // studio floor for the hero shots
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ color: 0x0b0d11, metalness: 0.7, roughness: 0.32, envMapIntensity: 0.7 }));
+  floor.rotation.x = -Math.PI / 2; floor.position.y = -0.765; floor.visible = false;
+  scene.add(floor);
+  const base = () => {
+    floor.visible = false; lens.position.set(-1.7, 0, 0); phone.rotation.set(0, 0, 0); phone.position.set(1.5, 0, 0);
+    setOpacity(cover, 0); glass.emissiveIntensity = 0;
+  };
+  glass.emissive = new THREE.Color(0xfff4dc);
+
   const L = {
     lens: label('professional telephoto · ≈ 260 mm of barrel', -1.7, 0.78, 0),
     thin: label('under 9 mm thick', 1.5, 0.98, 0),
@@ -137,6 +155,7 @@ export function build() {
   const labels = Object.values(L);
 
   function update(t, c) {
+    base();
     for (const l of labels) l.o = 0;
     lens.visible = true; lensDim.visible = true;
     setOpacity(phone, ramp(t, c.phone - 0.3, c.phone + 0.8));
@@ -166,6 +185,7 @@ export function build() {
 
   /** Outro: u 0→1, the phone turns from its camera side to the finished photo on screen. */
   function outro(u, ask) {
+    base();
     for (const l of labels) l.o = 0;
     lens.visible = false; lensDim.visible = false; lamp.visible = false;
     beam.setProgress(0);
@@ -180,5 +200,39 @@ export function build() {
     L.end.o = ask;
   }
 
-  return { scene, camera, labels, update, outro, envIntensity: 0.4 };
+  /** Hero shots of the two cameras (own models), u = 0→1 through the shot, t = seconds into it. */
+  function shot(name, u, t) {
+    base();
+    for (const l of labels) l.o = 0;
+    floor.visible = true; lensDim.visible = false; lamp.visible = false; beam.setProgress(0);
+    lens.visible = true; setOpacity(phone, 1); phone.visible = true;
+    lens.position.y = -0.2; setOpacity(cover, 1);
+    const cam = (p, l) => { camera.position.set(...p); camera.lookAt(...l); };
+    const jx = Math.sin(t * 7.1) + 0.6 * Math.sin(t * 13.3 + 1), jy = Math.sin(t * 9.7) + 0.5 * Math.sin(t * 15.1);
+    if (name === 'front') { phone.visible = false; cam([1.9 - 0.5 * u, -0.12 + 0.35 * u, 0.1 + 1.7 * u], [-1.0, -0.2, 0]); }
+    else if (name === 'spin') { phone.visible = false; const a = 0.75 - 1.5 * u; cam([-1.6 + 3.1 * Math.sin(a), 0.7 - 0.3 * u, 3.1 * Math.cos(a)], [-1.6, -0.2, 0]); }
+    else if (name === 'macro') { phone.visible = false; cam([-2.9 + 2.0 * u, 0.38, 0.9], [-2.5 + 2.0 * u, -0.08, 0]); }
+    else if (name === 'xray') {
+      phone.visible = false;
+      setOpacity(cover, 1 - ramp(u, 0.12, 0.4)); glass.emissiveIntensity = 0.22 * ramp(u, 0.3, 0.6);
+      cam([-1.55 + 0.25 * u, 0.2, 3.3 - 0.4 * u], [-1.55, -0.2, 0]);
+    } else if (name === 'both') { phone.position.set(1.5, -0.015, 0); phone.rotation.y = 0.5 - 0.3 * u; cam([0.2 - 0.4 * u, 0.35, 6.3 - 0.5 * u], [-0.1, -0.1, 0]); }
+    else if (name === 'side') {
+      lens.visible = false; phone.rotation.x = -Math.PI / 2; phone.position.set(0, -0.72, 0);
+      cam([2.3 - 0.3 * u, -0.6 + 0.06 * u, -0.9 + 0.5 * u], [0, -0.7, -0.15]);
+    } else if (name === 'rear' || name === 'rearpush') {
+      lens.visible = false; floor.visible = false; phone.rotation.y = 0.22 - 0.12 * u;
+      beam.setProgress(ramp(u, 0.05, 0.55)); lamp.visible = true;
+      const k = name === 'rearpush' ? u * u : 0;
+      cam([lerp(1.02 + 0.1 * u, 1.3, k), lerp(0.66, 0.6, k), lerp(1.25 - 0.2 * u, 0.24, k)], [lerp(1.36, 1.3, k), lerp(0.5, 0.6, k), 0]);
+    } else if (name === 'tremble') {
+      lens.visible = false; floor.visible = false;
+      const a = 0.012 + 0.028 * ramp(u, 0, 0.6);
+      phone.rotation.set(a * jy, 0.3 + a * jx, a * 0.6 * jx); phone.position.set(1.5 + a * 0.4 * jx, a * 0.5 * jy, 0);
+      cam([0.75 + 0.2 * u, 0.2, -2.7 + 0.3 * u], [1.5, 0.05, 0]);
+    }
+    (camera.userData.look || (camera.userData.look = new THREE.Vector3())).set(0, 0, 0);
+  }
+
+  return { scene, camera, labels, update, outro, shot, envIntensity: 0.4 };
 }
